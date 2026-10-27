@@ -32,12 +32,19 @@ export const BOARD_THEMES: Record<BoardTheme, BoardThemeColors> = {
   },
 };
 
+export interface Arrow {
+  from: Square;
+  to: Square;
+  color?: string;
+}
+
 interface ChessboardProps {
   snapshot: GameSnapshot;
   legalMoves: DetailedMove[];
   orientation: Color;
   interactive: boolean;
   theme?: BoardTheme;
+  hintMove?: { from: Square; to: Square } | null;
   onMove: (from: Square, to: Square, promotion?: PieceSymbol) => void;
 }
 
@@ -47,11 +54,17 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   orientation,
   interactive,
   theme = 'green',
+  hintMove,
   onMove,
 }) => {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [pendingPromotion, setPendingPromotion] = useState<{ from: Square; to: Square } | null>(null);
   const [draggedSquare, setDraggedSquare] = useState<Square | null>(null);
+
+  // Right-click arrows and highlights
+  const [arrows, setArrows] = useState<Arrow[]>([]);
+  const [highlightedSquares, setHighlightedSquares] = useState<Set<Square>>(new Set());
+  const [rightClickStart, setRightClickStart] = useState<Square | null>(null);
 
   const colors = BOARD_THEMES[theme];
 
@@ -92,6 +105,12 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     : [];
 
   const handleSquareClick = (square: Square) => {
+    // Clear tactical arrows on left click
+    if (arrows.length > 0 || highlightedSquares.size > 0) {
+      setArrows([]);
+      setHighlightedSquares(new Set());
+    }
+
     if (!interactive) return;
 
     if (selectedSquare && activeLegalTargets.includes(square)) {
@@ -117,6 +136,8 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     } else {
       onMove(from, to);
       setSelectedSquare(null);
+      setArrows([]);
+      setHighlightedSquares(new Set());
     }
   };
 
@@ -127,6 +148,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     setSelectedSquare(null);
   };
 
+  // Drag and Drop
   const handleDragStart = (e: React.DragEvent, square: Square) => {
     if (!interactive) return;
     const movesFromHere = legalMoves.filter((m) => m.from === square);
@@ -159,6 +181,49 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     setDraggedSquare(null);
   };
 
+  // Right-click Tactical Arrows
+  const handleMouseDown = (e: React.MouseEvent, square: Square) => {
+    if (e.button === 2) {
+      // Right click
+      e.preventDefault();
+      setRightClickStart(square);
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent, square: Square) => {
+    if (e.button === 2) {
+      e.preventDefault();
+      if (rightClickStart) {
+        if (rightClickStart === square) {
+          // Toggle square highlight
+          setHighlightedSquares((prev) => {
+            const next = new Set(prev);
+            if (next.has(square)) {
+              next.delete(square);
+            } else {
+              next.add(square);
+            }
+            return next;
+          });
+        } else {
+          // Add or remove arrow
+          setArrows((prev) => {
+            const exists = prev.some(
+              (a) => a.from === rightClickStart && a.to === square
+            );
+            if (exists) {
+              return prev.filter(
+                (a) => !(a.from === rightClickStart && a.to === square)
+              );
+            }
+            return [...prev, { from: rightClickStart, to: square, color: '#f59e0b' }];
+          });
+        }
+      }
+      setRightClickStart(null);
+    }
+  };
+
   const getPieceOnSquare = (sq: Square): { type: PieceSymbol; color: Color } | null => {
     const fIdx = files.indexOf(sq[0]);
     const rIdx = ranks.indexOf(sq[1]);
@@ -182,8 +247,21 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     return null;
   };
 
+  // Helper to get SVG coordinates (0-800 scale)
+  const getSquareCoordinates = (sq: Square): { x: number; y: number } => {
+    const fIdx = displayFiles.indexOf(sq[0]);
+    const rIdx = displayRanks.indexOf(sq[1]);
+    return {
+      x: fIdx * 100 + 50,
+      y: rIdx * 100 + 50,
+    };
+  };
+
   return (
-    <div className="relative aspect-square w-full max-w-[580px] rounded-lg shadow-2xl overflow-hidden border border-slate-700/80 select-none">
+    <div
+      onContextMenu={(e) => e.preventDefault()}
+      className="relative aspect-square w-full max-w-[580px] rounded-lg shadow-2xl overflow-hidden border border-slate-700/80 select-none"
+    >
       {/* 8x8 Board Grid */}
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
         {displayRanks.map((rank, rIdx) =>
@@ -196,11 +274,14 @@ export const Chessboard: React.FC<ChessboardProps> = ({
             const isCheck = checkSquare === square;
             const isLastMoveFrom = snapshot.lastMove?.from === square;
             const isLastMoveTo = snapshot.lastMove?.to === square;
+            const isRightClickHighlight = highlightedSquares.has(square);
 
             return (
               <div
                 key={square}
                 onClick={() => handleSquareClick(square)}
+                onMouseDown={(e) => handleMouseDown(e, square)}
+                onMouseUp={(e) => handleMouseUp(e, square)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, square)}
                 style={{
@@ -223,7 +304,12 @@ export const Chessboard: React.FC<ChessboardProps> = ({
                   <div className="absolute inset-0 bg-red-600/70 rounded-full animate-pulse pointer-events-none filter blur-[1px]" />
                 )}
 
-                {/* Legal destination marker (Chess.com dot/ring) */}
+                {/* Right-click square highlight */}
+                {isRightClickHighlight && (
+                  <div className="absolute inset-0 bg-amber-500/50 rounded-md pointer-events-none" />
+                )}
+
+                {/* Legal destination marker */}
                 {isTarget && (
                   <div className="absolute z-10 flex items-center justify-center pointer-events-none">
                     {piece ? (
@@ -267,6 +353,94 @@ export const Chessboard: React.FC<ChessboardProps> = ({
           })
         )}
       </div>
+
+      {/* SVG Layer for Tactical Arrows & Hint Arrow */}
+      <svg
+        viewBox="0 0 800 800"
+        className="absolute inset-0 w-full h-full pointer-events-none z-20"
+      >
+        <defs>
+          {/* Custom Orange Right-Click Arrow Marker */}
+          <marker
+            id="arrowhead-orange"
+            markerWidth="6"
+            markerHeight="6"
+            refX="4"
+            refY="3"
+            orient="auto"
+          >
+            <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" opacity="0.85" />
+          </marker>
+
+          {/* Engine Hint Arrow Marker */}
+          <marker
+            id="arrowhead-hint"
+            markerWidth="6"
+            markerHeight="6"
+            refX="4"
+            refY="3"
+            orient="auto"
+          >
+            <polygon points="0 0, 6 3, 0 6" fill="#10b981" opacity="0.9" />
+          </marker>
+        </defs>
+
+        {/* User Right-Click Arrows */}
+        {arrows.map((arr, i) => {
+          const from = getSquareCoordinates(arr.from);
+          const to = getSquareCoordinates(arr.to);
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist === 0) return null;
+          // Shorten slightly so arrow head points at center
+          const targetX = to.x - (dx / dist) * 20;
+          const targetY = to.y - (dy / dist) * 20;
+
+          return (
+            <line
+              key={i}
+              x1={from.x}
+              y1={from.y}
+              x2={targetX}
+              y2={targetY}
+              stroke="#f59e0b"
+              strokeWidth="14"
+              strokeLinecap="round"
+              opacity="0.85"
+              markerEnd="url(#arrowhead-orange)"
+            />
+          );
+        })}
+
+        {/* Engine Suggested Best Move Arrow */}
+        {hintMove && (
+          (() => {
+            const from = getSquareCoordinates(hintMove.from);
+            const to = getSquareCoordinates(hintMove.to);
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist === 0) return null;
+            const targetX = to.x - (dx / dist) * 22;
+            const targetY = to.y - (dy / dist) * 22;
+
+            return (
+              <line
+                x1={from.x}
+                y1={from.y}
+                x2={targetX}
+                y2={targetY}
+                stroke="#10b981"
+                strokeWidth="16"
+                strokeLinecap="round"
+                opacity="0.9"
+                markerEnd="url(#arrowhead-hint)"
+              />
+            );
+          })()
+        )}
+      </svg>
 
       {/* Promotion Dialog Modal */}
       {pendingPromotion && (
