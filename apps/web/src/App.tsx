@@ -8,7 +8,7 @@ import {
   Square,
   TimeControl,
 } from '@chess/core';
-import { Chessboard } from './components/Chessboard.js';
+import { Chessboard, BoardTheme } from './components/Chessboard.js';
 import { ClockDisplay } from './components/ClockDisplay.js';
 import { MoveHistory } from './components/MoveHistory.js';
 import { useChessAI, AIDifficulty } from './hooks/useChessAI.js';
@@ -33,6 +33,7 @@ export const App: React.FC = () => {
   const [difficulty, setDifficulty] = useState<AIDifficulty>('medium');
   const [userColor, setUserColor] = useState<Color>('w');
   const [orientation, setOrientation] = useState<Color>('w');
+  const [boardTheme, setBoardTheme] = useState<BoardTheme>('green');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [joinCodeInput, setJoinCodeInput] = useState<string>('');
   const [playerNameInput, setPlayerNameInput] = useState<string>('Player');
@@ -261,6 +262,7 @@ export const App: React.FC = () => {
             snapshot={currentSnapshot}
             legalMoves={currentLegalMoves}
             orientation={orientation}
+            theme={boardTheme}
             interactive={
               currentSnapshot.status === 'active' &&
               (!isOnline ||
@@ -294,8 +296,45 @@ export const App: React.FC = () => {
                 onClick={flipBoard}
                 className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-300 transition-colors flex items-center gap-1.5"
               >
-                <RotateCcw size={14} /> Flip Board
+                <RotateCcw size={14} /> Flip
               </button>
+
+              {/* Theme selector */}
+              <div className="flex items-center bg-slate-850 p-0.5 rounded-lg border border-slate-700 text-xs">
+                <button
+                  onClick={() => setBoardTheme('green')}
+                  title="Chess.com Green Theme"
+                  className={`px-2 py-1 rounded transition-colors ${
+                    boardTheme === 'green'
+                      ? 'bg-[#739552] text-white font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Green
+                </button>
+                <button
+                  onClick={() => setBoardTheme('wood')}
+                  title="Tournament Wood Theme"
+                  className={`px-2 py-1 rounded transition-colors ${
+                    boardTheme === 'wood'
+                      ? 'bg-[#b58863] text-white font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Wood
+                </button>
+                <button
+                  onClick={() => setBoardTheme('dark')}
+                  title="Modern Dark Theme"
+                  className={`px-2 py-1 rounded transition-colors ${
+                    boardTheme === 'dark'
+                      ? 'bg-slate-700 text-white font-bold'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  Dark
+                </button>
+              </div>
 
               {!isOnline && (
                 <button
