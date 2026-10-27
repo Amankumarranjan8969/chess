@@ -1,0 +1,75 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  status       String    @default("active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  whiteGames   Game[]    @relation("WhitePlayer")
+  blackGames   Game[]    @relation("BlackPlayer")
+  ratings      Rating[]
+
+  @@map("users")
+}
+
+model Rating {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  ratingType  String   @map("rating_type") // blitz, rapid, bullet
+  rating      Int      @default(1200)
+  gamesPlayed Int      @default(0) @map("games_played")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ratingType])
+  @@map("ratings")
+}
+
+model Game {
+  id            String    @id @default(uuid())
+  whitePlayerId String?   @map("white_player_id")
+  blackPlayerId String?   @map("black_player_id")
+  mode          String    @default("standard")
+  status        String    @default("waiting") // waiting, active, finished, aborted
+  result        String?   // 1-0, 0-1, 1/2-1/2
+  endReason     String?   @map("end_reason")
+  timeControl   String    @map("time_control") // e.g. "300+3"
+  initialFen    String    @map("initial_fen")
+  currentFen    String    @map("current_fen")
+  version       Int       @default(0)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  endedAt       DateTime? @map("ended_at")
+
+  whitePlayer   User?     @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
+  blackPlayer   User?     @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
+  moves         Move[]
+
+  @@map("games")
+}
+
+model Move {
+  id             String   @id @default(uuid())
+  gameId         String   @map("game_id")
+  ply            Int
+  uci            String
+  san            String
+  fenAfter       String   @map("fen_after")
+  clockWhiteMs   Int?     @map("clock_white_ms")
+  clockBlackMs   Int?     @map("clock_black_ms")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  game           Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, ply])
+  @@index([gameId])
+  @@map("moves")
+}
