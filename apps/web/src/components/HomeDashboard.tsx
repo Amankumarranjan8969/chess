@@ -313,7 +313,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
 
           {/* Quick Time Control Selector Pills */}
-          <div className="flex items-center gap-1.5 bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
+          <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
             <span className="text-[11px] text-stone-600 dark:text-stone-400 px-2 font-medium">
               Time Format:
             </span>
@@ -330,7 +330,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   selectedTimeControl === tc.id
                     ? 'bg-[#739552] text-white shadow-sm'
-                    : 'text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-700'
+                    : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-white dark:hover:bg-stone-700'
                 }`}
               >
                 {tc.id}
@@ -392,22 +392,22 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           {/* Card 3: Play a Friend (Local Wi-Fi Network & Online Challenge) */}
           <button
             onClick={onOpenWifiModal}
-            className="p-4 min-h-[195px] rounded-2xl bg-gradient-to-br from-[#739552]/10 via-[#739552]/5 to-transparent border border-[#739552]/40 hover:border-[#739552] shadow-sm hover:shadow-md transition-all text-left flex flex-col justify-between group cursor-pointer"
+            className="p-4 min-h-[195px] rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-[#739552] dark:hover:border-[#739552] shadow-sm hover:shadow-md transition-all text-left flex flex-col justify-between group cursor-pointer"
           >
             <div>
-              <div className="flex items-center justify-between pb-2 border-b border-[#739552]/20">
-                <span className="font-extrabold text-sm text-[#466528] dark:text-[#88c558] flex items-center gap-1.5">
+              <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
+                <span className="font-extrabold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                   <Wifi size={16} className="text-[#739552]" /> Play a Friend
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#739552] text-white shadow-sm">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#739552]/10 text-[#5f7d41] dark:text-[#88c558] border border-[#739552]/20">
                   Wi-Fi Match
                 </span>
               </div>
-              <p className="text-xs text-stone-700 dark:text-stone-300 mt-2.5 leading-relaxed font-medium">
+              <p className="text-xs text-stone-600 dark:text-stone-300 mt-2.5 leading-relaxed font-medium">
                 Share a direct link with anyone on your same Wi-Fi network or enter a room code for instant, low-latency play.
               </p>
             </div>
-            <div className="pt-3 border-t border-[#739552]/20 flex items-center justify-between text-xs font-bold text-[#5f7d41] dark:text-[#88c558] group-hover:translate-x-1 transition-transform">
+            <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs font-bold text-[#739552] group-hover:translate-x-1 transition-transform">
               <span>Generate Wi-Fi Room</span>
               <Share2 size={15} />
             </div>

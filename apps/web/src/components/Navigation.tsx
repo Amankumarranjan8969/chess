@@ -108,7 +108,7 @@ export const Navigation: React.FC = () => {
           </div>
 
           {/* Desktop Primary Nav Bar with WCAG AA Contrast & Green Active Indicator */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-white dark:bg-stone-800/90 p-1 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs">
+          <nav className="hidden md:flex items-center gap-1.5 bg-stone-100 dark:bg-stone-850 p-1.5 rounded-2xl border border-stone-200 dark:border-stone-700/80 shadow-xs">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
 
@@ -121,7 +121,7 @@ export const Navigation: React.FC = () => {
                       ? 'bg-[#739552] text-white shadow-md shadow-[#739552]/25'
                       : isDark
                       ? 'text-stone-300 hover:text-white hover:bg-stone-700/60'
-                      : 'text-stone-700 hover:text-stone-950 hover:bg-stone-50 shadow-none'
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-white shadow-none'
                   }`}
                 >
                   <span className="shrink-0">{item.icon}</span>

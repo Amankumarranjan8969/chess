@@ -241,7 +241,15 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [preferences, setPreferences] = useState<UserPreferences>(() => {
     const saved = localStorage.getItem('chess_platform_prefs');
-    return saved ? JSON.parse(saved) : DEFAULT_PREFERENCES;
+    const parsed: UserPreferences = saved ? JSON.parse(saved) : DEFAULT_PREFERENCES;
+    if (typeof document !== 'undefined') {
+      if (parsed.themeMode === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+    return parsed;
   });
 
   // Persistence side-effects
@@ -255,6 +263,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     localStorage.setItem('chess_platform_prefs', JSON.stringify(preferences));
+    if (typeof document !== 'undefined') {
+      if (preferences.themeMode === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
   }, [preferences]);
 
   useEffect(() => {

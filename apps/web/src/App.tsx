@@ -485,7 +485,7 @@ const MainAppContent: React.FC = () => {
   return (
     <div
       className={`min-h-screen flex flex-col font-sans select-none transition-colors ${
-        isDark ? 'bg-stone-950 text-stone-100' : 'bg-white text-stone-900'
+        isDark ? 'bg-stone-950 text-stone-100' : 'bg-[#f7f7f6] text-stone-900'
       }`}
     >
       {/* Persistent Navigation Across All Sections */}
