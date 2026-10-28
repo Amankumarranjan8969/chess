@@ -258,8 +258,10 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (typeof document !== 'undefined') {
       if (parsed.themeMode === 'dark') {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
       }
     }
     return parsed;
@@ -279,8 +281,10 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (typeof document !== 'undefined') {
       if (preferences.themeMode === 'dark') {
         document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
       }
     }
   }, [preferences]);
