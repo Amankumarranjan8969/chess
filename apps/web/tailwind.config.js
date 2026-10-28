@@ -7,13 +7,27 @@ export default {
   theme: {
     extend: {
       colors: {
+        surface: {
+          DEFAULT: '#161512',
+          panel: '#21201d',
+          card: '#262421',
+          hover: '#2d2b27',
+        },
+        border: {
+          dim: '#33302a',
+          hover: '#47433c',
+        },
         board: {
-          light: '#f0d9b5',
-          dark: '#b58863',
-          highlight: 'rgba(255, 255, 0, 0.4)',
-          check: 'rgba(255, 0, 0, 0.5)',
-          selected: 'rgba(20, 85, 30, 0.5)',
-          target: 'rgba(20, 85, 30, 0.3)',
+          light: '#ebecd0',
+          dark: '#739552',
+          highlight: '#bbcb43',
+          check: 'rgba(235, 97, 80, 0.75)',
+        },
+        chess: {
+          green: '#739552',
+          'green-hover': '#648346',
+          gold: '#e5a93b',
+          'gold-hover': '#cf942b',
         }
       }
     },

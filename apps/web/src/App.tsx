@@ -17,6 +17,8 @@ import { ClockDisplay } from './components/ClockDisplay.js';
 import { MoveHistory } from './components/MoveHistory.js';
 import { EvaluationBar } from './components/EvaluationBar.js';
 import { CapturedPieces } from './components/CapturedPieces.js';
+import { GameOverModal } from './components/GameOverModal.js';
+import { NewGameModal } from './components/NewGameModal.js';
 import { useChessAI, AIDifficulty } from './hooks/useChessAI.js';
 import { useChessSocket } from './hooks/useChessSocket.js';
 import { soundManager } from './audio/soundManager.js';
@@ -32,6 +34,9 @@ import {
   Share2,
   Lightbulb,
   BookOpen,
+  Maximize2,
+  Minimize2,
+  Play,
 } from 'lucide-react';
 
 type GameMode = 'computer' | 'local' | 'online';
@@ -44,6 +49,13 @@ export const App: React.FC = () => {
   const [boardTheme, setBoardTheme] = useState<BoardTheme>('green');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [showBestMoveHint, setShowBestMoveHint] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Modals
+  const [showNewGameModal, setShowNewGameModal] = useState<boolean>(false);
+  const [showGameOverModal, setShowGameOverModal] = useState<boolean>(false);
+
+  // Online credentials
   const [joinCodeInput, setJoinCodeInput] = useState<string>('');
   const [playerNameInput, setPlayerNameInput] = useState<string>('Player');
 
@@ -77,6 +89,37 @@ export const App: React.FC = () => {
     ? socketHook.roomState?.gameState ?? localSnapshot
     : localSnapshot;
 
+  // Real-time clock tick and automatic timeout flag detector for local play
+  useEffect(() => {
+    if (isOnline || localSnapshot.status !== 'active') return;
+
+    const interval = setInterval(() => {
+      const snap = localGameRef.current.getSnapshot();
+
+      // Check if timeout occurred
+      if (snap.status === 'finished') {
+        setLocalSnapshot(snap);
+        setShowGameOverModal(true);
+        soundManager.playGameOver();
+      } else {
+        // Continuous clock snapshot sync
+        setLocalSnapshot((prev) => ({
+          ...prev,
+          clocks: snap.clocks,
+        }));
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isOnline, localSnapshot.status]);
+
+  // When game finishes online, trigger game over modal
+  useEffect(() => {
+    if (isOnline && socketHook.roomState?.gameState.status === 'finished') {
+      setShowGameOverModal(true);
+    }
+  }, [isOnline, socketHook.roomState?.gameState.status]);
+
   // Active snapshot (either live or historical review)
   const currentSnapshot: GameSnapshot = useMemo(() => {
     if (reviewPly === -1) {
@@ -84,7 +127,6 @@ export const App: React.FC = () => {
     }
 
     if (reviewPly === -2) {
-      // Start of game
       const tempGame = new ChessGame();
       return tempGame.getSnapshot();
     }
@@ -119,11 +161,9 @@ export const App: React.FC = () => {
     liveSnapshot.moveHistory.forEach((m) => {
       if (m.captured) {
         if (m.color === 'w') {
-          // White captured a black piece
           whiteCaps.push(m.captured);
           whiteScore += PIECE_VALUES[m.captured] ?? 0;
         } else {
-          // Black captured a white piece
           blackCaps.push(m.captured);
           blackScore += PIECE_VALUES[m.captured] ?? 0;
         }
@@ -181,18 +221,26 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [liveSnapshot.moveHistory.length]);
 
-  // Reset or initialize local game
-  const resetLocalGame = useCallback(
-    (timeControl: TimeControl = { initialMs: 300000, incrementMs: 3000 }) => {
+  // Start a new local game with configured options
+  const startNewLocalGame = useCallback(
+    (
+      chosenColor: Color = userColor,
+      chosenDifficulty: AIDifficulty = difficulty,
+      timeControl: TimeControl = { initialMs: 300000, incrementMs: 3000 }
+    ) => {
       cancelSearch();
       setReviewPly(-1);
+      setShowGameOverModal(false);
+      setUserColor(chosenColor);
+      setDifficulty(chosenDifficulty);
+      setOrientation(chosenColor);
+
       const newGame = new ChessGame(undefined, { timeControl });
       localGameRef.current = newGame;
       setLocalSnapshot(newGame.getSnapshot());
       setLegalMoves(newGame.getLegalMoves());
-      setOrientation(userColor);
     },
-    [cancelSearch, userColor]
+    [cancelSearch, userColor, difficulty]
   );
 
   const toggleSound = () => {
@@ -205,9 +253,25 @@ export const App: React.FC = () => {
     setOrientation((prev) => (prev === 'w' ? 'b' : 'w'));
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
   // Local move execution
   const handleLocalMove = (from: Square, to: Square, promotion?: PieceSymbol) => {
-    setReviewPly(-1); // jump to live
+    setReviewPly(-1);
     const res = localGameRef.current.makeMove({ from, to, promotion });
     if (!res.success || !res.move) return;
 
@@ -224,6 +288,10 @@ export const App: React.FC = () => {
     const snap = localGameRef.current.getSnapshot();
     setLocalSnapshot(snap);
     setLegalMoves(localGameRef.current.getLegalMoves());
+
+    if (snap.status === 'finished') {
+      setShowGameOverModal(true);
+    }
   };
 
   // Online move execution
@@ -236,7 +304,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (mode !== 'computer') return;
     if (localSnapshot.status !== 'active') return;
-    if (reviewPly !== -1) return; // don't move while user reviews history
+    if (reviewPly !== -1) return;
 
     const computerColor: Color = userColor === 'w' ? 'b' : 'w';
     if (localSnapshot.sideToMove === computerColor && !isAIThinking) {
@@ -270,7 +338,9 @@ export const App: React.FC = () => {
         socketHook.resign();
       } else {
         localGameRef.current.resign(localSnapshot.sideToMove);
-        setLocalSnapshot(localGameRef.current.getSnapshot());
+        const snap = localGameRef.current.getSnapshot();
+        setLocalSnapshot(snap);
+        setShowGameOverModal(true);
         soundManager.playGameOver();
       }
     }
@@ -281,7 +351,9 @@ export const App: React.FC = () => {
       socketHook.claimDraw(type);
     } else {
       localGameRef.current.claimDraw(type);
-      setLocalSnapshot(localGameRef.current.getSnapshot());
+      const snap = localGameRef.current.getSnapshot();
+      setLocalSnapshot(snap);
+      setShowGameOverModal(true);
       soundManager.playGameOver();
     }
   };
@@ -289,98 +361,109 @@ export const App: React.FC = () => {
   const topPlayerColor: Color = orientation === 'w' ? 'b' : 'w';
   const bottomPlayerColor: Color = orientation === 'w' ? 'w' : 'b';
 
+  // Whose turn is it relative to user
+  const isUserTurn =
+    liveSnapshot.status === 'active' &&
+    (isOnline ? socketHook.playerColor === liveSnapshot.sideToMove : liveSnapshot.sideToMove === userColor);
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#161512] text-[#edebe8] flex flex-col font-sans select-none">
       {/* Top Navigation Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-30 px-6 py-3 flex items-center justify-between">
+      <header className="border-b border-[#2d2b27] bg-[#1b1a17]/95 backdrop-blur px-5 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#739552]/30 border border-[#739552] flex items-center justify-center font-bold text-[#ebecd0] text-xl shadow-md">
+          <div className="w-9 h-9 rounded-xl bg-[#739552]/25 border border-[#739552]/50 flex items-center justify-center font-bold text-[#ebecd0] text-xl shadow">
             ♞
           </div>
           <div>
-            <h1 className="font-bold text-lg leading-tight tracking-tight text-white flex items-center gap-2">
+            <h1 className="font-extrabold text-base leading-tight tracking-tight text-white flex items-center gap-2">
               Grandmaster Arena
-              <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#739552]/30 text-[#ebecd0] border border-[#739552]/50">
-                PRO
-              </span>
             </h1>
-            <p className="text-xs text-slate-400">Master-Grade Chess Platform</p>
+            <p className="text-[11px] text-stone-400">Professional Chess Platform</p>
           </div>
         </div>
 
         {/* Mode Selector Tabs */}
-        <div className="flex items-center bg-slate-850 p-1 rounded-xl border border-slate-750 text-sm shadow-inner">
+        <div className="flex items-center bg-[#21201d] p-1 rounded-xl border border-[#33302a] text-xs shadow-inner">
           <button
             onClick={() => {
               setMode('computer');
-              resetLocalGame();
+              setShowNewGameModal(true);
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
               mode === 'computer'
-                ? 'bg-[#739552] text-white font-bold shadow'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#739552] text-white shadow-md'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
-            <Bot size={15} />
-            <span>Play Computer</span>
+            <Bot size={14} />
+            <span>vs Computer</span>
           </button>
           <button
             onClick={() => {
               setMode('online');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
               mode === 'online'
-                ? 'bg-[#739552] text-white font-bold shadow'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#739552] text-white shadow-md'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
-            <Globe size={15} />
+            <Globe size={14} />
             <span>Play Online</span>
           </button>
           <button
             onClick={() => {
               setMode('local');
-              resetLocalGame();
+              startNewLocalGame('w', 'medium');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
               mode === 'local'
-                ? 'bg-[#739552] text-white font-bold shadow'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#739552] text-white shadow-md'
+                : 'text-stone-400 hover:text-white'
             }`}
           >
-            <Users size={15} />
+            <Users size={14} />
             <span>Pass & Play</span>
           </button>
         </div>
 
-        {/* Controls */}
+        {/* Action Controls & Fullscreen */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowBestMoveHint((prev) => !prev)}
             title={showBestMoveHint ? 'Hide Best Move Hint' : 'Show Best Move Hint'}
-            className={`p-2 rounded-lg border transition-all flex items-center gap-1 text-xs font-semibold ${
+            className={`px-2.5 py-1.5 rounded-lg border transition-all flex items-center gap-1 text-xs font-bold ${
               showBestMoveHint
-                ? 'bg-emerald-600/30 border-emerald-500 text-emerald-300'
-                : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-400'
+                ? 'bg-[#739552]/25 border-[#739552] text-[#82aa5a]'
+                : 'bg-[#21201d] hover:bg-[#282622] border-[#33302a] text-stone-400'
             }`}
           >
-            <Lightbulb size={16} />
+            <Lightbulb size={14} />
             <span className="hidden sm:inline">Hint</span>
           </button>
+
           <button
             onClick={toggleSound}
             title={soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition-colors"
+            className="p-2 rounded-lg bg-[#21201d] hover:bg-[#282622] border border-[#33302a] text-stone-400 hover:text-white transition-colors"
           >
-            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+          </button>
+
+          <button
+            onClick={toggleFullscreen}
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            className="p-2 rounded-lg bg-[#21201d] hover:bg-[#282622] border border-[#33302a] text-stone-400 hover:text-white transition-colors"
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
         </div>
       </header>
 
       {/* Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[1fr_390px] gap-6 items-start">
-        {/* Left Column: Evaluation Bar + Board & Clocks */}
-        <div className="flex flex-col items-center gap-2">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5 items-start">
+        {/* Left Column: Board, Evaluation Bar & Prominent Clocks */}
+        <div className="flex flex-col items-center gap-2.5 w-full">
           {/* Top Player Info & Clock */}
           <div className="w-full max-w-[620px] flex flex-col gap-1">
             <ClockDisplay
@@ -395,7 +478,6 @@ export const App: React.FC = () => {
               clockState={liveSnapshot.clocks}
               isActive={liveSnapshot.sideToMove === topPlayerColor && liveSnapshot.status === 'active'}
             />
-            {/* Captured Pieces by Top Player */}
             <div className="px-1">
               <CapturedPieces
                 captured={topPlayerColor === 'w' ? whiteCaptured : blackCaptured}
@@ -405,10 +487,10 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Board Center Row (Eval Bar + Chessboard) */}
-          <div className="flex items-center gap-2.5 w-full max-w-[620px] justify-center">
+          {/* Central Row: Live Eval Bar + Board */}
+          <div className="flex items-center gap-3 w-full max-w-[620px] justify-center">
             {/* Live Evaluation Bar */}
-            <div className="h-[480px] sm:h-[540px] md:h-[580px]">
+            <div className="h-[460px] sm:h-[520px] md:h-[570px]">
               <EvaluationBar
                 scoreCentipawns={evalScore}
                 isCheckmate={currentSnapshot.isCheckmate}
@@ -416,8 +498,8 @@ export const App: React.FC = () => {
               />
             </div>
 
-            {/* Interactive Board */}
-            <div className="flex-1 max-w-[580px]">
+            {/* Chessboard */}
+            <div className="flex-1 max-w-[570px]">
               <Chessboard
                 snapshot={currentSnapshot}
                 legalMoves={currentLegalMoves}
@@ -460,40 +542,83 @@ export const App: React.FC = () => {
             />
           </div>
 
+          {/* Prominent Active Turn Status Banner */}
+          <div className="w-full max-w-[620px]">
+            {liveSnapshot.status === 'active' ? (
+              <div
+                className={`py-2 px-4 rounded-xl border flex items-center justify-between text-xs font-bold transition-all ${
+                  isUserTurn
+                    ? 'bg-[#739552]/15 border-[#739552]/40 text-[#82aa5a] shadow-[0_0_15px_rgba(115,149,82,0.15)]'
+                    : 'bg-[#21201d] border-[#33302a] text-stone-400'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${
+                      isUserTurn ? 'bg-[#739552] animate-ping' : 'bg-amber-400'
+                    }`}
+                  />
+                  <span>
+                    {isUserTurn
+                      ? "It's your turn — Make a move!"
+                      : mode === 'computer'
+                      ? 'Computer is analyzing positions...'
+                      : "Opponent's turn..."}
+                  </span>
+                </div>
+                {liveSnapshot.isCheck && (
+                  <span className="px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 border border-rose-600/40 uppercase tracking-widest text-[10px]">
+                    Check!
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="py-2 px-4 rounded-xl bg-[#e5a93b]/15 border border-[#e5a93b]/40 text-[#e5a93b] font-bold text-xs flex items-center justify-between">
+                <span>Game Over: {liveSnapshot.result}</span>
+                <button
+                  onClick={() => setShowGameOverModal(true)}
+                  className="underline hover:text-white"
+                >
+                  View Details
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Historical Review Notification Bar */}
           {reviewPly !== -1 && (
-            <div className="w-full max-w-[620px] bg-amber-500/15 border border-amber-500/40 rounded-xl p-2.5 flex items-center justify-between shadow-lg">
-              <div className="flex items-center gap-2 text-xs text-amber-300 font-semibold">
-                <span>Reviewing historical move #{reviewPly === -2 ? 0 : reviewPly + 1}</span>
-              </div>
+            <div className="w-full max-w-[620px] bg-[#e5a93b]/15 border border-[#e5a93b]/40 rounded-xl p-2.5 flex items-center justify-between shadow-lg">
+              <span className="text-xs text-[#e5a93b] font-bold">
+                Reviewing move #{reviewPly === -2 ? 0 : reviewPly + 1}
+              </span>
               <button
                 onClick={() => setReviewPly(-1)}
-                className="px-3 py-1 rounded bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors shadow"
+                className="px-3 py-1 rounded-lg bg-[#e5a93b] text-slate-950 font-bold text-xs hover:bg-[#cf942b] transition-colors shadow"
               >
                 Return to Live Game
               </button>
             </div>
           )}
 
-          {/* Board Action Bar */}
+          {/* Clean Action Bar */}
           <div className="w-full max-w-[620px] flex flex-wrap items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2">
               <button
                 onClick={flipBoard}
-                className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-300 transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-xl bg-[#21201d] hover:bg-[#282622] border border-[#33302a] text-xs font-semibold text-stone-300 transition-colors flex items-center gap-1.5"
               >
-                <RotateCcw size={14} /> Flip
+                <RotateCcw size={13} /> Flip
               </button>
 
               {/* Theme selector */}
-              <div className="flex items-center bg-slate-850 p-0.5 rounded-lg border border-slate-700 text-xs">
+              <div className="flex items-center bg-[#21201d] p-0.5 rounded-xl border border-[#33302a] text-xs">
                 <button
                   onClick={() => setBoardTheme('green')}
                   title="Chess.com Green Theme"
-                  className={`px-2 py-1 rounded transition-colors ${
+                  className={`px-2 py-1 rounded-lg transition-colors ${
                     boardTheme === 'green'
                       ? 'bg-[#739552] text-white font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
+                      : 'text-stone-400 hover:text-stone-200'
                   }`}
                 >
                   Green
@@ -501,10 +626,10 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => setBoardTheme('wood')}
                   title="Tournament Wood Theme"
-                  className={`px-2 py-1 rounded transition-colors ${
+                  className={`px-2 py-1 rounded-lg transition-colors ${
                     boardTheme === 'wood'
                       ? 'bg-[#b58863] text-white font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
+                      : 'text-stone-400 hover:text-stone-200'
                   }`}
                 >
                   Wood
@@ -512,10 +637,10 @@ export const App: React.FC = () => {
                 <button
                   onClick={() => setBoardTheme('dark')}
                   title="Modern Dark Theme"
-                  className={`px-2 py-1 rounded transition-colors ${
+                  className={`px-2 py-1 rounded-lg transition-colors ${
                     boardTheme === 'dark'
-                      ? 'bg-slate-700 text-white font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'bg-stone-700 text-white font-bold'
+                      : 'text-stone-400 hover:text-stone-200'
                   }`}
                 >
                   Dark
@@ -524,10 +649,10 @@ export const App: React.FC = () => {
 
               {!isOnline && (
                 <button
-                  onClick={() => resetLocalGame()}
-                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-300 transition-colors"
+                  onClick={() => setShowNewGameModal(true)}
+                  className="px-3 py-1.5 rounded-xl bg-[#739552] hover:bg-[#648346] text-white text-xs font-bold transition-all shadow flex items-center gap-1.5"
                 >
-                  New Game
+                  <Play size={12} fill="white" /> New Game
                 </button>
               )}
             </div>
@@ -536,23 +661,23 @@ export const App: React.FC = () => {
               {liveSnapshot.canClaimThreefold && (
                 <button
                   onClick={() => handleClaimDraw('threefold')}
-                  className="px-3 py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 text-amber-300 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-xl bg-[#e5a93b]/20 hover:bg-[#e5a93b]/30 border border-[#e5a93b]/40 text-[#e5a93b] text-xs font-bold"
                 >
-                  Claim Threefold Draw
+                  Claim Threefold
                 </button>
               )}
               {liveSnapshot.canClaimFiftyMoves && (
                 <button
                   onClick={() => handleClaimDraw('fifty_moves')}
-                  className="px-3 py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600/50 border border-amber-500/40 text-amber-300 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-xl bg-[#e5a93b]/20 hover:bg-[#e5a93b]/30 border border-[#e5a93b]/40 text-[#e5a93b] text-xs font-bold"
                 >
-                  Claim 50-Move Draw
+                  Claim 50-Move
                 </button>
               )}
               {liveSnapshot.status === 'active' && (
                 <button
                   onClick={handleResign}
-                  className="px-3 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-400 text-xs font-medium flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/40 text-rose-400 text-xs font-bold flex items-center gap-1.5 transition-colors"
                 >
                   <Flag size={13} /> Resign
                 </button>
@@ -561,104 +686,39 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Opening Display, Mode Settings & Move History */}
-        <div className="flex flex-col gap-4">
+        {/* Right Column: Opening Display & Move History Only (Clutter Free!) */}
+        <div className="flex flex-col gap-4 w-full">
           {/* Opening Book Explorer Banner */}
           {openingInfo && (
-            <div className="bg-slate-850 border border-slate-750 rounded-xl p-3 shadow-lg flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+            <div className="bg-[#21201d] border border-[#33302a] rounded-2xl p-3.5 shadow-lg flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-[#e5a93b]/20 border border-[#e5a93b]/40 flex items-center justify-center text-[#e5a93b]">
                 <BookOpen size={16} />
               </div>
               <div className="flex flex-col">
-                <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                <div className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
                   Opening Book ({openingInfo.eco})
                 </div>
-                <div className="text-sm font-bold text-slate-100 leading-snug">
+                <div className="text-sm font-bold text-[#edebe8] leading-tight">
                   {openingInfo.name}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Offline Computer Config Panel */}
-          {mode === 'computer' && (
-            <div className="bg-slate-850 border border-slate-750 rounded-xl p-4 shadow-lg flex flex-col gap-3">
-              <h3 className="font-semibold text-slate-200 text-sm">Computer Opponent Setup</h3>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-slate-400 font-medium">Difficulty Level</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['easy', 'medium', 'hard'] as AIDifficulty[]).map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setDifficulty(d)}
-                      className={`py-1.5 text-xs font-bold rounded-lg border capitalize transition-all ${
-                        difficulty === d
-                          ? 'bg-[#739552] border-[#739552] text-white shadow'
-                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200'
-                      }`}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-slate-400 font-medium">Play As</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => {
-                      setUserColor('w');
-                      setOrientation('w');
-                      resetLocalGame();
-                    }}
-                    className={`py-1.5 text-xs font-semibold rounded-lg border transition-all ${
-                      userColor === 'w'
-                        ? 'bg-slate-100 text-slate-900 border-white font-bold shadow'
-                        : 'bg-slate-800 border-slate-700 text-slate-300'
-                    }`}
-                  >
-                    White
-                  </button>
-                  <button
-                    onClick={() => {
-                      setUserColor('b');
-                      setOrientation('b');
-                      resetLocalGame();
-                    }}
-                    className={`py-1.5 text-xs font-semibold rounded-lg border transition-all ${
-                      userColor === 'b'
-                        ? 'bg-slate-950 text-slate-100 border-slate-500 font-bold shadow'
-                        : 'bg-slate-800 border-slate-700 text-slate-300'
-                    }`}
-                  >
-                    Black
-                  </button>
-                </div>
-              </div>
-
-              {isAIThinking && (
-                <div className="flex items-center gap-2 text-xs text-amber-400 animate-pulse pt-1">
-                  <div className="w-2 h-2 rounded-full bg-amber-400" />
-                  <span>Computer is analyzing positions...</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Online Matchmaking / Private Room Panel */}
+          {/* Online Matchmaking / Room Panel (Only in Online Mode) */}
           {mode === 'online' && (
-            <div className="bg-slate-850 border border-slate-750 rounded-xl p-4 shadow-lg flex flex-col gap-3">
+            <div className="bg-[#21201d] border border-[#33302a] rounded-2xl p-4 shadow-lg flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-slate-200 text-sm">Online Match</h3>
+                <h3 className="font-bold text-stone-200 text-xs uppercase tracking-wider">
+                  Online Match
+                </h3>
                 <div className="flex items-center gap-1.5">
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      socketHook.connected ? 'bg-emerald-400' : 'bg-rose-500'
+                      socketHook.connected ? 'bg-[#739552]' : 'bg-rose-500'
                     }`}
                   />
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-stone-400">
                     {socketHook.connected ? 'Connected' : 'Connecting...'}
                   </span>
                 </div>
@@ -667,32 +727,30 @@ export const App: React.FC = () => {
               {!socketHook.roomState ? (
                 <div className="flex flex-col gap-3 pt-1">
                   <div>
-                    <label className="text-xs text-slate-400">Your Name</label>
+                    <label className="text-xs text-stone-400">Your Name</label>
                     <input
                       type="text"
                       value={playerNameInput}
                       onChange={(e) => setPlayerNameInput(e.target.value)}
-                      className="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#739552]"
+                      className="w-full mt-1 bg-[#161512] border border-[#33302a] rounded-xl px-3 py-1.5 text-sm text-[#edebe8] focus:outline-none focus:border-[#739552]"
                     />
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        socketHook.createRoom(
-                          { initialMs: 300000, incrementMs: 3000 },
-                          playerNameInput
-                        )
-                      }
-                      className="flex-1 bg-[#739552] hover:bg-[#648346] text-white font-bold py-2 rounded-lg text-xs transition-colors shadow"
-                    >
-                      Create Private Room
-                    </button>
-                  </div>
+                  <button
+                    onClick={() =>
+                      socketHook.createRoom(
+                        { initialMs: 300000, incrementMs: 3000 },
+                        playerNameInput
+                      )
+                    }
+                    className="w-full bg-[#739552] hover:bg-[#648346] text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow"
+                  >
+                    Create Private Room
+                  </button>
 
                   <div className="relative flex items-center justify-center my-1">
-                    <div className="border-t border-slate-800 w-full" />
-                    <span className="bg-slate-850 px-2 text-[11px] text-slate-500 uppercase">
+                    <div className="border-t border-[#33302a] w-full" />
+                    <span className="bg-[#21201d] px-2 text-[10px] text-stone-500 uppercase tracking-widest">
                       or join
                     </span>
                   </div>
@@ -700,15 +758,15 @@ export const App: React.FC = () => {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Enter 6-char Room Code"
+                      placeholder="Room Code"
                       value={joinCodeInput}
                       onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
-                      className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-[#739552] uppercase font-mono tracking-widest text-center"
+                      className="flex-1 bg-[#161512] border border-[#33302a] rounded-xl px-3 py-1.5 text-sm text-[#edebe8] focus:outline-none focus:border-[#739552] uppercase font-mono tracking-widest text-center"
                     />
                     <button
                       onClick={() => socketHook.joinRoom(joinCodeInput, playerNameInput)}
                       disabled={joinCodeInput.length < 4}
-                      className="bg-slate-700 hover:bg-slate-600 disabled:opacity-40 text-slate-100 font-semibold px-4 py-1.5 rounded-lg text-xs transition-colors"
+                      className="bg-stone-700 hover:bg-stone-600 disabled:opacity-30 text-white font-bold px-4 py-1.5 rounded-xl text-xs transition-colors"
                     >
                       Join
                     </button>
@@ -716,12 +774,12 @@ export const App: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5 pt-1">
-                  <div className="bg-slate-900 border border-slate-800 rounded-lg p-3 flex items-center justify-between">
+                  <div className="bg-[#161512] border border-[#33302a] rounded-xl p-3 flex items-center justify-between">
                     <div>
-                      <div className="text-[10px] text-slate-400 uppercase font-semibold">
+                      <div className="text-[10px] text-stone-400 uppercase font-semibold">
                         Room Code
                       </div>
-                      <div className="text-lg font-mono font-bold text-amber-400">
+                      <div className="text-lg font-mono font-bold text-[#e5a93b]">
                         {socketHook.roomState.roomId}
                       </div>
                     </div>
@@ -730,7 +788,7 @@ export const App: React.FC = () => {
                         navigator.clipboard.writeText(socketHook.roomState.roomId);
                         alert('Room code copied to clipboard!');
                       }}
-                      className="p-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-300"
+                      className="p-2 rounded-lg bg-[#21201d] hover:bg-[#282622] text-stone-300"
                       title="Copy Code"
                     >
                       <Share2 size={16} />
@@ -738,20 +796,20 @@ export const App: React.FC = () => {
                   </div>
 
                   {socketHook.pendingDrawOffer && (
-                    <div className="p-3 bg-amber-500/10 border border-amber-500/40 rounded-lg flex flex-col gap-2">
-                      <span className="text-xs text-amber-300 font-semibold">
+                    <div className="p-3 bg-[#e5a93b]/10 border border-[#e5a93b]/40 rounded-xl flex flex-col gap-2">
+                      <span className="text-xs text-[#e5a93b] font-semibold">
                         Opponent offered a draw. Accept?
                       </span>
                       <div className="flex gap-2">
                         <button
                           onClick={() => socketHook.respondDraw(true)}
-                          className="flex-1 bg-[#739552] text-white font-bold py-1 rounded text-xs"
+                          className="flex-1 bg-[#739552] text-white font-bold py-1 rounded-lg text-xs"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => socketHook.respondDraw(false)}
-                          className="flex-1 bg-slate-800 text-slate-300 py-1 rounded text-xs"
+                          className="flex-1 bg-[#262421] text-stone-300 py-1 rounded-lg text-xs"
                         >
                           Decline
                         </button>
@@ -762,7 +820,7 @@ export const App: React.FC = () => {
                   {socketHook.roomState.gameState.status === 'active' && (
                     <button
                       onClick={() => socketHook.offerDraw()}
-                      className="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center justify-center gap-1.5 border border-slate-700"
+                      className="w-full py-2 rounded-xl bg-[#262421] hover:bg-[#2c2a26] text-stone-300 text-xs font-semibold flex items-center justify-center gap-1.5 border border-[#33302a]"
                     >
                       <Handshake size={14} /> Offer Draw
                     </button>
@@ -781,6 +839,28 @@ export const App: React.FC = () => {
           />
         </div>
       </main>
+
+      {/* New Game Setup Modal */}
+      <NewGameModal
+        isOpen={showNewGameModal}
+        initialColor={userColor}
+        initialDifficulty={difficulty}
+        onClose={() => setShowNewGameModal(false)}
+        onStartGame={(color, diff, tc) => startNewLocalGame(color, diff, tc)}
+      />
+
+      {/* Victory / Defeat Game Over Modal */}
+      <GameOverModal
+        isOpen={showGameOverModal}
+        result={liveSnapshot.result}
+        endReason={liveSnapshot.endReason}
+        userColor={userColor}
+        onPlayAgain={() => {
+          setShowGameOverModal(false);
+          setShowNewGameModal(true);
+        }}
+        onReviewBoard={() => setShowGameOverModal(false)}
+      />
     </div>
   );
 };

@@ -11,7 +11,7 @@ import {
 interface MoveHistoryProps {
   moves: DetailedMove[];
   snapshot: GameSnapshot;
-  currentPlyIndex: number; // -1 means latest live position, 0..N is historical view
+  currentPlyIndex: number;
   onSelectPly: (plyIndex: number) => void;
 }
 
@@ -23,14 +23,12 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to latest move if viewing live position
   useEffect(() => {
     if (currentPlyIndex === -1 && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [moves, currentPlyIndex]);
 
-  // Group moves into pairs (turn #, white move, black move)
   const pairedMoves: {
     turnNumber: number;
     white?: { move: DetailedMove; ply: number };
@@ -62,14 +60,14 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
   const activePly = currentPlyIndex === -1 ? moves.length - 1 : currentPlyIndex;
 
   return (
-    <div className="bg-slate-850 border border-slate-800 rounded-xl p-4 flex flex-col h-[340px] shadow-lg">
+    <div className="bg-[#21201d] border border-[#33302a] rounded-2xl p-4 flex flex-col h-[280px] sm:h-[320px] shadow-lg">
       {/* Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-2">
-        <h3 className="font-semibold text-slate-200 text-sm">Move History</h3>
+      <div className="flex items-center justify-between pb-2.5 border-b border-[#33302a] mb-2">
+        <h3 className="font-bold text-stone-200 text-xs uppercase tracking-wider">Move History</h3>
         <button
           onClick={exportPGN}
           disabled={moves.length === 0}
-          className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 transition-colors disabled:opacity-40"
+          className="flex items-center gap-1 text-xs text-[#e5a93b] hover:text-[#f3be5d] transition-colors disabled:opacity-30 font-semibold"
         >
           <Download size={13} /> Copy PGN
         </button>
@@ -81,7 +79,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
         className="flex-1 overflow-y-auto space-y-0.5 text-xs font-mono pr-1"
       >
         {pairedMoves.length === 0 ? (
-          <div className="text-slate-500 text-xs italic text-center py-10">
+          <div className="text-stone-500 text-xs italic text-center py-10">
             Game moves will appear here
           </div>
         ) : (
@@ -92,15 +90,15 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             return (
               <div
                 key={pair.turnNumber}
-                className="grid grid-cols-[38px_1fr_1fr] px-2 py-1 rounded hover:bg-slate-800/60 items-center transition-colors"
+                className="grid grid-cols-[38px_1fr_1fr] px-2 py-1 rounded hover:bg-[#282622] items-center transition-colors"
               >
-                <span className="text-slate-500 font-semibold">{pair.turnNumber}.</span>
+                <span className="text-stone-500 font-semibold">{pair.turnNumber}.</span>
                 <button
                   onClick={() => pair.white && onSelectPly(pair.white.ply)}
-                  className={`text-left px-1.5 py-0.5 rounded font-medium transition-all ${
+                  className={`text-left px-2 py-0.5 rounded font-medium transition-all ${
                     isWhiteActive
-                      ? 'bg-amber-500/20 text-amber-300 font-bold'
-                      : 'text-slate-200 hover:text-white'
+                      ? 'bg-[#739552]/30 text-[#82aa5a] font-bold ring-1 ring-[#739552]/50'
+                      : 'text-stone-200 hover:text-white'
                   }`}
                 >
                   {pair.white?.move.san}
@@ -108,10 +106,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                 {pair.black ? (
                   <button
                     onClick={() => onSelectPly(pair.black!.ply)}
-                    className={`text-left px-1.5 py-0.5 rounded font-medium transition-all ${
+                    className={`text-left px-2 py-0.5 rounded font-medium transition-all ${
                       isBlackActive
-                        ? 'bg-amber-500/20 text-amber-300 font-bold'
-                        : 'text-slate-300 hover:text-white'
+                        ? 'bg-[#739552]/30 text-[#82aa5a] font-bold ring-1 ring-[#739552]/50'
+                        : 'text-stone-300 hover:text-white'
                     }`}
                   >
                     {pair.black.move.san}
@@ -125,23 +123,23 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
         )}
       </div>
 
-      {/* Game End Banner */}
+      {/* Game End Mini Status Banner if not modal */}
       {snapshot.status === 'finished' && (
-        <div className="mt-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-center">
-          <div className="text-xs font-bold text-amber-400">{snapshot.result}</div>
-          <div className="text-[11px] text-slate-300 capitalize">
+        <div className="mt-2 p-2 rounded-xl bg-[#e5a93b]/10 border border-[#e5a93b]/30 text-center">
+          <div className="text-xs font-bold text-[#e5a93b]">{snapshot.result}</div>
+          <div className="text-[11px] text-stone-300 capitalize">
             {snapshot.endReason?.replace(/_/g, ' ')}
           </div>
         </div>
       )}
 
       {/* Navigation Controls (⏮ ◀ ▶ ⏭) */}
-      <div className="flex items-center justify-between pt-3 border-t border-slate-800 mt-2">
+      <div className="flex items-center justify-between pt-2.5 border-t border-[#33302a] mt-2">
         <button
-          onClick={() => onSelectPly(-2)} // Start of game
-          disabled={moves.length === 0 || activePly === -1 && moves.length === 0}
+          onClick={() => onSelectPly(-2)}
+          disabled={moves.length === 0 || (activePly === -1 && moves.length === 0)}
           title="Start of game"
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-[#2c2a26] text-stone-400 hover:text-stone-200 disabled:opacity-30"
         >
           <ChevronsLeft size={16} />
         </button>
@@ -149,7 +147,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
           onClick={() => onSelectPly(Math.max(-2, activePly - 1))}
           disabled={moves.length === 0 || activePly <= -2}
           title="Previous move"
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-[#2c2a26] text-stone-400 hover:text-stone-200 disabled:opacity-30"
         >
           <ChevronLeft size={16} />
         </button>
@@ -158,20 +156,20 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             if (activePly < moves.length - 1) {
               onSelectPly(activePly + 1);
             } else {
-              onSelectPly(-1); // Live
+              onSelectPly(-1);
             }
           }}
           disabled={moves.length === 0 || currentPlyIndex === -1}
           title="Next move"
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-[#2c2a26] text-stone-400 hover:text-stone-200 disabled:opacity-30"
         >
           <ChevronRight size={16} />
         </button>
         <button
-          onClick={() => onSelectPly(-1)} // Live
+          onClick={() => onSelectPly(-1)}
           disabled={moves.length === 0 || currentPlyIndex === -1}
           title="Current live position"
-          className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 disabled:opacity-30"
+          className="p-1.5 rounded-lg hover:bg-[#2c2a26] text-stone-400 hover:text-stone-200 disabled:opacity-30"
         >
           <ChevronsRight size={16} />
         </button>

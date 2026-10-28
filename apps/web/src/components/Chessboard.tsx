@@ -260,7 +260,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   return (
     <div
       onContextMenu={(e) => e.preventDefault()}
-      className="relative aspect-square w-full max-w-[580px] rounded-lg shadow-2xl overflow-hidden border border-slate-700/80 select-none"
+      className="relative aspect-square w-full max-w-[590px] rounded-xl shadow-2xl overflow-hidden border border-[#33302a] select-none"
     >
       {/* 8x8 Board Grid */}
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
@@ -444,9 +444,9 @@ export const Chessboard: React.FC<ChessboardProps> = ({
 
       {/* Promotion Dialog Modal */}
       {pendingPromotion && (
-        <div className="absolute inset-0 bg-black/75 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
-            <h3 className="text-base font-bold text-white mb-4 tracking-wide uppercase">
+        <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+          <div className="bg-[#21201d] border border-[#33302a] rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+            <h3 className="text-sm font-bold text-white mb-4 tracking-wider uppercase">
               Choose Promotion Piece
             </h3>
             <div className="flex gap-4">
@@ -454,7 +454,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
                 <button
                   key={p}
                   onClick={() => handlePromotionSelect(p)}
-                  className="w-16 h-16 bg-slate-700/80 hover:bg-[#739552] p-2 rounded-xl border border-slate-600 transition-all hover:scale-110 flex items-center justify-center shadow-lg"
+                  className="w-16 h-16 bg-[#262421] hover:bg-[#739552] p-2 rounded-xl border border-[#38342e] transition-all hover:scale-110 flex items-center justify-center shadow-lg"
                 >
                   <ChessPiece type={p} color={snapshot.sideToMove} />
                 </button>
