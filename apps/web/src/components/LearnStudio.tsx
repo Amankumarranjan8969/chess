@@ -73,7 +73,7 @@ export const LearnStudio: React.FC = () => {
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
       {/* 1. LEARNING DASHBOARD HEADER */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white rounded-3xl p-6 shadow-xl border border-stone-800 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 text-stone-900 dark:text-white rounded-3xl p-6 shadow-sm border border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-emerald-900/40">
             🎓
@@ -82,40 +82,40 @@ export const LearnStudio: React.FC = () => {
             <h1 className="font-extrabold text-xl sm:text-2xl tracking-tight">
               Chess Learning Academy
             </h1>
-            <p className="text-xs text-stone-400 mt-1 max-w-lg">
+            <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-lg">
               Structured progressive curriculum from beginner fundamentals to master calculation, prophylaxis, and technical conversion.
             </p>
           </div>
         </div>
 
         {/* Progress Card */}
-        <div className="bg-stone-800/80 border border-stone-700/80 rounded-2xl p-4 flex items-center gap-5">
+        <div className="bg-white dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700/80 rounded-2xl p-4 flex items-center gap-5 shadow-xs">
           <div>
-            <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">
+            <span className="text-[10px] text-stone-500 dark:text-stone-400 font-bold uppercase tracking-wider">
               Curriculum Mastery
             </span>
-            <div className="text-xl font-mono font-extrabold text-emerald-400 mt-0.5">
+            <div className="text-xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
               {progressPercent}% Complete
             </div>
-            <span className="text-[10px] text-stone-400">
+            <span className="text-[10px] text-stone-500 dark:text-stone-400">
               {completedCount} of {lessons.length} Lessons Finished
             </span>
           </div>
 
-          <div className="w-16 h-16 rounded-full border-4 border-stone-700 border-t-[#739552] flex items-center justify-center font-bold text-xs">
+          <div className="w-16 h-16 rounded-full border-4 border-stone-200 dark:border-stone-700 border-t-[#739552] flex items-center justify-center font-bold text-xs">
             {progressPercent}%
           </div>
         </div>
       </div>
 
       {/* 2. SUB-SECTION TABS */}
-      <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 w-fit">
+      <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 w-fit shadow-xs">
         <button
           onClick={() => setActiveTab('curriculum')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'curriculum'
-              ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-              : 'text-stone-500 hover:text-stone-900'
+              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
           }`}
         >
           <BookOpen size={14} /> Curriculum Path
@@ -124,8 +124,8 @@ export const LearnStudio: React.FC = () => {
           onClick={() => setActiveTab('explorer')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'explorer'
-              ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-              : 'text-stone-500 hover:text-stone-900'
+              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
           }`}
         >
           <Compass size={14} /> Opening Explorer
@@ -134,8 +134,8 @@ export const LearnStudio: React.FC = () => {
           onClick={() => setActiveTab('vision')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'vision'
-              ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-              : 'text-stone-500 hover:text-stone-900'
+              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
           }`}
         >
           <Eye size={14} /> Vision Trainer
@@ -144,8 +144,8 @@ export const LearnStudio: React.FC = () => {
           onClick={() => setActiveTab('insights')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'insights'
-              ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-              : 'text-stone-500 hover:text-stone-900'
+              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
           }`}
         >
           <BrainCircuit size={14} /> Personal Insights
@@ -190,7 +190,7 @@ export const LearnStudio: React.FC = () => {
                   >
                     <div>
                       <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">
+                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shadow-xs">
                           {l.level}
                         </span>
                         {l.completed ? (
@@ -243,8 +243,8 @@ export const LearnStudio: React.FC = () => {
             </div>
 
             {/* Key Objectives */}
-            <div className="flex flex-col gap-2 bg-stone-50 dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200/60 dark:border-stone-800">
-              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+            <div className="flex flex-col gap-2 bg-white dark:bg-stone-800/50 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs">
+              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                 Key Learning Objectives
               </span>
               {selectedLesson.objectives.map((obj, i) => (
@@ -261,7 +261,7 @@ export const LearnStudio: React.FC = () => {
                 onClick={() => completeLesson(selectedLesson.id)}
                 className={`w-full py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm ${
                   selectedLesson.completed
-                    ? 'bg-stone-100 dark:bg-stone-800 text-stone-500 cursor-default'
+                    ? 'bg-stone-100 dark:bg-stone-800 text-stone-500 border border-stone-200 dark:border-stone-700 cursor-default'
                     : 'bg-[#739552] hover:bg-[#648346] text-white'
                 }`}
               >
@@ -271,7 +271,7 @@ export const LearnStudio: React.FC = () => {
 
               <button
                 onClick={() => navigateTo('puzzles')}
-                className="w-full py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
               >
                 <Sparkles size={13} className="text-amber-500" />
                 <span>Practice Associated Puzzles</span>
@@ -301,7 +301,7 @@ export const LearnStudio: React.FC = () => {
                 value={searchECO}
                 onChange={(e) => setSearchECO(e.target.value)}
                 placeholder="Search opening or ECO..."
-                className="pl-9 pr-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
+                className="pl-9 pr-4 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
               />
             </div>
           </div>
@@ -346,9 +346,9 @@ export const LearnStudio: React.FC = () => {
           </div>
 
           {/* Target Square Display */}
-          <div className="p-4 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center gap-6">
+          <div className="p-4 rounded-2xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center gap-6 shadow-xs">
             <div>
-              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                 Click Target Square
               </span>
               <div className="text-3xl font-mono font-extrabold text-[#739552]">
@@ -357,7 +357,7 @@ export const LearnStudio: React.FC = () => {
             </div>
             <div className="w-px h-10 bg-stone-200 dark:bg-stone-700" />
             <div>
-              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                 Score
               </span>
               <div className="text-3xl font-mono font-extrabold text-stone-900 dark:text-stone-100">

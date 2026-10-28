@@ -101,7 +101,7 @@ export const MoreStudio: React.FC = () => {
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 overflow-x-auto scrollbar-none w-full sm:w-fit">
+      <div className="flex items-center gap-1.5 bg-white dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 overflow-x-auto scrollbar-none w-full sm:w-fit shadow-xs">
         {[
           { id: 'profile', label: 'Profile & Stats', icon: <User size={14} /> },
           { id: 'messages', label: 'Messages', icon: <MessageSquare size={14} /> },
@@ -115,8 +115,8 @@ export const MoreStudio: React.FC = () => {
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-                : 'text-stone-500 hover:text-stone-900 dark:hover:text-stone-200'
+                ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
             {tab.icon}
@@ -181,9 +181,9 @@ export const MoreStudio: React.FC = () => {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200/60 dark:border-stone-800"
+                    className="p-4 rounded-2xl bg-white dark:bg-stone-800/50 border border-stone-200 dark:border-stone-800 shadow-xs"
                   >
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                       {item.label}
                     </span>
                     <div className={`text-2xl font-mono font-extrabold mt-1 ${item.color}`}>
@@ -211,7 +211,7 @@ export const MoreStudio: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => alert('All recorded PGNs compiled into export file.')}
-                  className="px-3 py-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-bold flex items-center gap-1.5"
+                  className="px-3 py-2 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
                 >
                   <Download size={13} /> Export PGNs
                 </button>
@@ -285,7 +285,7 @@ export const MoreStudio: React.FC = () => {
                       className={`p-3 rounded-2xl text-xs leading-relaxed ${
                         isMe
                           ? 'bg-[#739552] text-white rounded-br-none shadow-sm'
-                          : 'bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 rounded-bl-none'
+                          : 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-200 border border-stone-200 dark:border-transparent rounded-bl-none shadow-xs'
                       }`}
                     >
                       {msg.content}
@@ -303,7 +303,7 @@ export const MoreStudio: React.FC = () => {
                 value={messageInput}
                 onChange={(e) => setMessageInput(e.target.value)}
                 placeholder={`Message ${selectedFriend?.username}...`}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
               />
               <button
                 type="submit"
@@ -346,8 +346,8 @@ export const MoreStudio: React.FC = () => {
                     onClick={() => updatePreferences({ boardTheme: b.id as any })}
                     className={`p-3 rounded-2xl border flex flex-col items-center gap-2 transition-all ${
                       preferences.boardTheme === b.id
-                        ? 'border-[#739552] ring-2 ring-[#739552]/40 bg-stone-50 dark:bg-stone-800'
-                        : 'border-stone-200 dark:border-stone-800 hover:bg-stone-50'
+                        ? 'border-[#739552] ring-2 ring-[#739552]/40 bg-white dark:bg-stone-800 shadow-xs'
+                        : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:border-stone-300 hover:bg-stone-50'
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-lg ${b.bg} shadow-sm`} />
@@ -365,7 +365,7 @@ export const MoreStudio: React.FC = () => {
                 Gameplay & Visual Helpers
               </label>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-800">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800 shadow-xs">
                 <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-2">
                   <Volume2 size={16} className="text-[#739552]" /> Sound Effects & Audio Ticks
                 </span>
@@ -383,7 +383,7 @@ export const MoreStudio: React.FC = () => {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-800">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800 shadow-xs">
                 <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 flex items-center gap-2">
                   <Eye size={16} className="text-[#739552]" /> Board Coordinates (a-h, 1-8)
                 </span>
@@ -475,10 +475,10 @@ export const MoreStudio: React.FC = () => {
                 className={`p-4 rounded-2xl border flex items-center gap-3 ${
                   a.unlocked
                     ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800'
-                    : 'bg-stone-50 dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 opacity-60'
+                    : 'bg-white dark:bg-stone-800/40 border-stone-200 dark:border-stone-800 opacity-60 shadow-xs'
                 }`}
               >
-                <div className="text-2xl p-2 rounded-xl bg-white dark:bg-stone-900 shadow-sm">
+                <div className="text-2xl p-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xs">
                   {a.icon}
                 </div>
                 <div>
@@ -517,7 +517,7 @@ export const MoreStudio: React.FC = () => {
                 <select
                   value={ticketCategory}
                   onChange={(e) => setTicketCategory(e.target.value as any)}
-                  className="w-full mt-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
+                  className="w-full mt-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
                 >
                   <option value="bug">Bug Report</option>
                   <option value="feature">Feature Request</option>
@@ -534,7 +534,7 @@ export const MoreStudio: React.FC = () => {
                   value={ticketSubject}
                   onChange={(e) => setTicketSubject(e.target.value)}
                   placeholder="Summary of issue..."
-                  className="w-full mt-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
+                  className="w-full mt-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
                 />
               </div>
 
@@ -546,7 +546,7 @@ export const MoreStudio: React.FC = () => {
                   value={ticketDescription}
                   onChange={(e) => setTicketDescription(e.target.value)}
                   placeholder="Provide detailed description..."
-                  className="w-full mt-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
+                  className="w-full mt-1 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
                 />
               </div>
 
@@ -569,7 +569,7 @@ export const MoreStudio: React.FC = () => {
               {supportTickets.map((t) => (
                 <div
                   key={t.id}
-                  className="p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 flex flex-col gap-1"
+                  className="p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-800/40 flex flex-col gap-1 shadow-xs"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono font-bold text-xs text-stone-800 dark:text-stone-200">{t.id}</span>

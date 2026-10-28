@@ -155,18 +155,18 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white border border-stone-200 rounded-2xl p-6 shadow-2xl flex flex-col gap-5 text-stone-900">
+      <div className="relative w-full max-w-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-6 shadow-2xl flex flex-col gap-5 text-stone-900 dark:text-stone-100">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-stone-200">
+        <div className="flex items-center justify-between pb-3 border-b border-stone-200 dark:border-stone-800">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[#739552]/15 border border-[#739552]/30 flex items-center justify-center text-[#739552]">
               <Wifi size={18} />
             </div>
             <div>
-              <h3 className="font-bold text-base text-stone-900 flex items-center gap-2">
+              <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 Local Wi-Fi & Online Play
               </h3>
-              <p className="text-[11px] text-stone-500">
+              <p className="text-[11px] text-stone-500 dark:text-stone-400">
                 Play in real-time with a friend on your local Wi-Fi or across the internet
               </p>
             </div>
@@ -237,13 +237,13 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
         ) : (
           <>
             {/* Tabs: Create Room vs Join Room */}
-            <div className="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs font-bold">
+            <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold shadow-xs">
               <button
                 onClick={() => setTab('create')}
                 className={`flex-1 py-1.5 rounded-lg text-center transition-all ${
                   tab === 'create'
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
-                    : 'text-stone-500 hover:text-stone-800'
+                    ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }`}
               >
                 Create Wi-Fi Match (Host)
@@ -252,8 +252,8 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
                 onClick={() => setTab('join')}
                 className={`flex-1 py-1.5 rounded-lg text-center transition-all ${
                   tab === 'join'
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
-                    : 'text-stone-500 hover:text-stone-800'
+                    ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
+                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                 }`}
               >
                 Join Match (Friend)
@@ -268,7 +268,7 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
 
             {/* Player Name Input */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-stone-600 uppercase tracking-wider">
+              <label className="text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                 Your Nickname
               </label>
               <input
@@ -276,7 +276,7 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 placeholder="Enter player name"
-                className="px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white text-xs text-stone-900 font-medium focus:outline-none focus:ring-2 focus:ring-[#739552]/40"
+                className="px-3.5 py-2.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 font-medium focus:outline-none focus:ring-2 focus:ring-[#739552]/40"
               />
             </div>
 
@@ -284,38 +284,38 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
               <div className="flex flex-col gap-4">
                 {/* Choose Color */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-stone-600 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                     Play As
                   </label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       onClick={() => setPreferredColor('w')}
-                      className={`py-2 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
+                      className={`py-2 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs ${
                         preferredColor === 'w'
-                          ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
-                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                          ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-sm'
+                          : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700'
                       }`}
                     >
-                      <div className="w-3 h-3 rounded-full bg-white border border-stone-400" />
+                      <div className="w-3 h-3 rounded-full bg-white border border-stone-400 shadow-sm" />
                       White
                     </button>
                     <button
                       onClick={() => setPreferredColor('b')}
-                      className={`py-2 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
+                      className={`py-2 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs ${
                         preferredColor === 'b'
-                          ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
-                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                          ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-sm'
+                          : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700'
                       }`}
                     >
-                      <div className="w-3 h-3 rounded-full bg-stone-900 border border-stone-600" />
+                      <div className="w-3 h-3 rounded-full bg-stone-900 border border-stone-600 shadow-sm" />
                       Black
                     </button>
                     <button
                       onClick={() => setPreferredColor('random')}
-                      className={`py-2 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
+                      className={`py-2 px-3 rounded-xl border font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs ${
                         preferredColor === 'random'
                           ? 'bg-[#739552] text-white border-[#739552] shadow-sm'
-                          : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
+                          : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700'
                       }`}
                     >
                       <span>🎲</span> Random
@@ -325,7 +325,7 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
 
                 {/* Time Control */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-stone-600 uppercase tracking-wider flex items-center gap-1">
+                  <label className="text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1">
                     <Clock size={12} /> Time Control
                   </label>
                   <div className="grid grid-cols-2 gap-2">
@@ -333,13 +333,13 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
                       <button
                         key={idx}
                         onClick={() => setSelectedTimeIdx(idx)}
-                        className={`py-2 px-3 rounded-xl border text-left transition-all ${
+                        className={`py-2 px-3 rounded-xl border text-left transition-all shadow-xs ${
                           selectedTimeIdx === idx
-                            ? 'bg-[#739552]/10 border-[#739552] text-[#5f7d41]'
-                            : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
+                            ? 'bg-[#739552]/10 border-[#739552] text-[#5f7d41] dark:text-[#8bc75a]'
+                            : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700'
                         }`}
                       >
-                        <div className="font-bold text-xs text-stone-900 flex items-center gap-1">
+                        <div className="font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1">
                           <Zap size={11} className={selectedTimeIdx === idx ? 'text-[#739552]' : 'text-stone-400'} />
                           {item.label}
                         </div>
@@ -363,7 +363,7 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
               <div className="flex flex-col gap-4">
                 {/* Room Code Input */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-stone-600 uppercase tracking-wider">
+                  <label className="text-xs font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                     6-Letter Room Code
                   </label>
                   <input
@@ -372,7 +372,7 @@ export const OnlineLobbyModal: React.FC<OnlineLobbyModalProps> = ({
                     value={roomCodeInput}
                     onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
                     placeholder="e.g. 7X8KP2"
-                    className="px-3.5 py-3 rounded-xl border border-stone-300 bg-white font-mono text-base font-bold tracking-widest text-center text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#739552]/40"
+                    className="px-3.5 py-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 font-mono text-base font-bold tracking-widest text-center text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]/40"
                   />
                 </div>
 

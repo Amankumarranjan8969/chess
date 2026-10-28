@@ -267,14 +267,14 @@ export const GameReviewStudio: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigateTo('home')}
-            className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors flex items-center gap-1.5 text-xs font-bold"
+            className="p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 transition-colors flex items-center gap-1.5 text-xs font-bold shadow-xs"
           >
             <ArrowLeft size={14} /> Back
           </button>
           <div>
             <h1 className="font-extrabold text-sm sm:text-base text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <span>Game Review Studio</span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 font-bold border border-stone-200 dark:border-stone-700">
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-400 font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
                 {game.timeControl}
               </span>
             </h1>
@@ -282,14 +282,14 @@ export const GameReviewStudio: React.FC = () => {
               {report.openingInfo
                 ? `${report.openingInfo.eco}: ${report.openingInfo.name}`
                 : 'Custom Game'}{' '}
-              • {game.date}
+                • {game.date}
             </p>
           </div>
         </div>
 
         {/* Accuracy Comparison Pills & Info Trigger */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-xs">
             <span className="w-3 h-3 rounded-full bg-white border border-stone-400 shadow-sm" />
             <span className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate max-w-[100px]">
               {game.white.name}
@@ -299,7 +299,7 @@ export const GameReviewStudio: React.FC = () => {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 shadow-xs">
             <span className="w-3 h-3 rounded-full bg-stone-900 border border-stone-600 shadow-sm" />
             <span className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate max-w-[100px]">
               {game.black.name}
@@ -312,7 +312,7 @@ export const GameReviewStudio: React.FC = () => {
           <button
             onClick={() => setShowAccuracyModal(true)}
             title="How Accuracy is calculated"
-            className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
+            className="p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 transition-colors shadow-xs"
           >
             <Info size={15} />
           </button>
@@ -324,12 +324,12 @@ export const GameReviewStudio: React.FC = () => {
         {/* PANEL 1 (LEFT): Game Timeline & Move Classification Register */}
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-3 shadow-sm flex flex-col h-[670px] max-h-[670px] overflow-hidden">
           {/* Timeline Filter Tabs */}
-          <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold mb-2 shrink-0 border border-stone-200 dark:border-stone-700">
+          <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold mb-2 shrink-0 border border-stone-200 dark:border-stone-700 shadow-xs">
             <button
               onClick={() => setTimelineFilter('all')}
               className={`flex-1 py-1 rounded-lg transition-all ${
                 timelineFilter === 'all'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
+                  ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
               }`}
             >
@@ -402,7 +402,7 @@ export const GameReviewStudio: React.FC = () => {
             className={`mt-2 py-2 px-3 rounded-xl border text-xs font-bold transition-all text-center shrink-0 ${
               currentMoveIdx === -1
                 ? 'bg-[#739552] text-white shadow-sm'
-                : 'bg-stone-50 dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100'
+                : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-300 hover:bg-stone-50 shadow-xs'
             }`}
           >
             Starting Board Position
@@ -500,14 +500,14 @@ export const GameReviewStudio: React.FC = () => {
               <button
                 onClick={() => selectMove(-1)}
                 title="First Move (|<<)"
-                className="p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+                className="p-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
               >
                 <ChevronsLeft size={16} />
               </button>
               <button
                 onClick={() => selectMove(Math.max(-1, currentMoveIdx - 1))}
                 title="Previous Move (←)"
-                className="p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+                className="p-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -521,14 +521,14 @@ export const GameReviewStudio: React.FC = () => {
               <button
                 onClick={() => selectMove(Math.min(report.analyzedMoves.length - 1, currentMoveIdx + 1))}
                 title="Next Move (→)"
-                className="p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+                className="p-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
               >
                 <ChevronRight size={16} />
               </button>
               <button
                 onClick={() => selectMove(report.analyzedMoves.length - 1)}
                 title="Last Move (>>|)"
-                className="p-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+                className="p-2 rounded-xl hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
               >
                 <ChevronsRight size={16} />
               </button>
@@ -541,7 +541,7 @@ export const GameReviewStudio: React.FC = () => {
             <button
               onClick={() => setOrientation((prev) => (prev === 'w' ? 'b' : 'w'))}
               title="Flip Board View"
-              className="px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 text-xs font-semibold flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-semibold flex items-center gap-1 transition-colors shadow-xs"
             >
               <RotateCcw size={12} /> Flip
             </button>
@@ -551,12 +551,12 @@ export const GameReviewStudio: React.FC = () => {
         {/* PANEL 3 (RIGHT): Live Analysis & Tactical Insights */}
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-sm flex flex-col h-[670px] max-h-[670px] overflow-hidden gap-3">
           {/* Tabs */}
-          <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold shrink-0 border border-stone-200 dark:border-stone-700">
+          <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold shrink-0 border border-stone-200 dark:border-stone-700 shadow-xs">
             <button
               onClick={() => setActiveTab('insight')}
               className={`flex-1 py-1.5 rounded-lg transition-all ${
                 activeTab === 'insight'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
+                  ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
               }`}
             >
@@ -566,7 +566,7 @@ export const GameReviewStudio: React.FC = () => {
               onClick={() => setActiveTab('mistakes')}
               className={`flex-1 py-1.5 rounded-lg transition-all ${
                 activeTab === 'mistakes'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
+                  ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
               }`}
             >
@@ -576,7 +576,7 @@ export const GameReviewStudio: React.FC = () => {
               onClick={() => setActiveTab('summary')}
               className={`flex-1 py-1.5 rounded-lg transition-all ${
                 activeTab === 'summary'
-                  ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
+                  ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
               }`}
             >
@@ -617,9 +617,9 @@ export const GameReviewStudio: React.FC = () => {
               </div>
 
               {/* What Happened & Why It Matters */}
-              <div className="bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800 rounded-2xl p-3.5 flex flex-col gap-2.5">
+              <div className="bg-white dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800 rounded-2xl p-3.5 flex flex-col gap-2.5 shadow-xs">
                 <div>
-                  <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  <h4 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     What Happened
                   </h4>
                   <p className="text-xs text-stone-800 dark:text-stone-200 font-medium leading-relaxed mt-0.5">
@@ -628,7 +628,7 @@ export const GameReviewStudio: React.FC = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  <h4 className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     Why It Matters
                   </h4>
                   <p className="text-xs text-stone-800 dark:text-stone-200 font-medium leading-relaxed mt-0.5">
@@ -688,7 +688,7 @@ export const GameReviewStudio: React.FC = () => {
                     <div
                       key={i}
                       onClick={() => selectMove(origIdx)}
-                      className="p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer transition-all flex flex-col gap-1"
+                      className="p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-800/40 hover:border-stone-300 hover:bg-stone-50 cursor-pointer transition-all flex flex-col gap-1 shadow-xs"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold font-mono text-stone-900 dark:text-stone-100">
@@ -712,7 +712,7 @@ export const GameReviewStudio: React.FC = () => {
           ) : (
             <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 scrollbar-thin">
               {/* Summary Headline */}
-              <div className="bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800 rounded-2xl p-3.5">
+              <div className="bg-white dark:bg-stone-800/60 border border-stone-200 dark:border-stone-800 rounded-2xl p-3.5 shadow-xs">
                 <h4 className="font-extrabold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                   <Award size={14} className="text-[#739552]" /> Coach Verdict
                 </h4>
@@ -723,13 +723,13 @@ export const GameReviewStudio: React.FC = () => {
 
               {/* Key Takeaways */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                   Key Observations
                 </span>
                 {report.summary.keyTakeaways.map((point, idx) => (
                   <div
                     key={idx}
-                    className="p-2.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed shadow-sm"
+                    className="p-2.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-[11px] text-stone-700 dark:text-stone-300 leading-relaxed shadow-xs"
                   >
                     • {point}
                   </div>
@@ -788,7 +788,7 @@ export const GameReviewStudio: React.FC = () => {
               <p>
                 A 90%+ accuracy means you played like a master in this particular game, but your overall rating depends on consistency across hundreds of tournament games.
               </p>
-              <div className="p-3 bg-stone-50 dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 text-[11px] text-stone-700 dark:text-stone-300">
+              <div className="p-3 bg-white dark:bg-stone-800 rounded-xl border border-stone-200 dark:border-stone-700 text-[11px] text-stone-700 dark:text-stone-300 shadow-xs">
                 • <strong>90–100%:</strong> Master-level precision<br />
                 • <strong>80–89%:</strong> Strong competitive play<br />
                 • <strong>70–79%:</strong> Solid intermediate performance<br />

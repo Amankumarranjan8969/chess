@@ -52,7 +52,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
             ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40'
             : isActive
             ? 'bg-[#739552] text-white shadow-md shadow-[#739552]/30 ring-2 ring-[#739552]/50'
-            : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+            : 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shadow-xs'
         }`}
       >
         <Clock
@@ -117,7 +117,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
             ? 'bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-500'
             : isActive
             ? 'bg-white dark:bg-stone-850 text-stone-900 dark:text-white border-2 border-[#739552] shadow-sm'
-            : 'bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+            : 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shadow-xs'
         }`}
       >
         <Clock

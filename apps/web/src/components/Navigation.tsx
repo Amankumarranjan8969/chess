@@ -108,7 +108,7 @@ export const Navigation: React.FC = () => {
           </div>
 
           {/* Desktop Primary Nav Bar with WCAG AA Contrast & Green Active Indicator */}
-          <nav className="hidden md:flex items-center gap-1.5 bg-stone-100/90 dark:bg-stone-800/90 p-1 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-inner">
+          <nav className="hidden md:flex items-center gap-1.5 bg-white dark:bg-stone-800/90 p-1 rounded-2xl border border-stone-200 dark:border-stone-700 shadow-xs">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
 
@@ -121,7 +121,7 @@ export const Navigation: React.FC = () => {
                       ? 'bg-[#739552] text-white shadow-md shadow-[#739552]/25'
                       : isDark
                       ? 'text-stone-300 hover:text-white hover:bg-stone-700/60'
-                      : 'text-stone-700 hover:text-stone-950 hover:bg-white/80 shadow-none'
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-stone-50 shadow-none'
                   }`}
                 >
                   <span className="shrink-0">{item.icon}</span>
@@ -142,7 +142,7 @@ export const Navigation: React.FC = () => {
             <div
               onClick={() => navigateTo('home')}
               title="Your Rapid Rating (Click to view statistics)"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold cursor-pointer hover:border-[#739552] dark:hover:border-[#739552] transition-colors"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold cursor-pointer hover:border-[#739552] dark:hover:border-[#739552] transition-colors shadow-xs"
             >
               <span className="text-[#739552] font-sans text-xs">⚡</span>
               <span className="text-stone-800 dark:text-stone-200">{user.ratings.rapid.rating}</span>
@@ -152,7 +152,7 @@ export const Navigation: React.FC = () => {
             <button
               onClick={() => navigateTo('more')}
               title="Messages & Notifications"
-              className="relative p-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200/80 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+              className="relative p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 transition-colors shadow-xs"
             >
               <MessageSquare size={16} />
               {unreadCount > 0 && (
@@ -166,7 +166,7 @@ export const Navigation: React.FC = () => {
             <button
               onClick={toggleSound}
               title={preferences.soundEnabled ? 'Mute Sound Effects' : 'Enable Sound Effects'}
-              className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200/80 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+              className="p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 transition-colors shadow-xs"
             >
               {preferences.soundEnabled ? (
                 <Volume2 size={16} className="text-[#739552]" />
@@ -179,7 +179,7 @@ export const Navigation: React.FC = () => {
             <button
               onClick={toggleTheme}
               title={`Switch to ${isDark ? 'Light' : 'Dark'} Theme`}
-              className="p-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200/80 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition-colors"
+              className="p-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 transition-colors shadow-xs"
             >
               {isDark ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
             </button>

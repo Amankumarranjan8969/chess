@@ -485,7 +485,7 @@ const MainAppContent: React.FC = () => {
   return (
     <div
       className={`min-h-screen flex flex-col font-sans select-none transition-colors ${
-        isDark ? 'bg-stone-950 text-stone-100' : 'bg-[#f5f5f4] text-stone-900'
+        isDark ? 'bg-stone-950 text-stone-100' : 'bg-white text-stone-900'
       }`}
     >
       {/* Persistent Navigation Across All Sections */}
@@ -531,7 +531,7 @@ const MainAppContent: React.FC = () => {
           <div className="flex-1 w-full max-w-[1750px] mx-auto p-2 sm:p-4 flex flex-col justify-center">
             {/* Play Sub-Bar Controls */}
             <div className="flex items-center justify-between mb-2 px-2 flex-wrap gap-2">
-              <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700">
+              <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
                 <button
                   onClick={() => {
                     setMode('computer');
@@ -539,11 +539,11 @@ const MainAppContent: React.FC = () => {
                   }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                     mode === 'computer'
-                      ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-                      : 'text-stone-500 hover:text-stone-900'
+                      ? 'bg-[#739552] text-white shadow-sm'
+                      : 'text-stone-700 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-700'
                   }`}
                 >
-                  <Bot size={13} className="text-[#739552]" />
+                  <Bot size={13} className={mode === 'computer' ? 'text-white' : 'text-[#739552]'} />
                   <span>vs Computer</span>
                 </button>
                 <button
@@ -553,11 +553,11 @@ const MainAppContent: React.FC = () => {
                   }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                     mode === 'online'
-                      ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-                      : 'text-stone-500 hover:text-stone-900'
+                      ? 'bg-[#739552] text-white shadow-sm'
+                      : 'text-stone-700 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-700'
                   }`}
                 >
-                  <Wifi size={13} className="text-[#739552]" />
+                  <Wifi size={13} className={mode === 'online' ? 'text-white' : 'text-[#739552]'} />
                   <span>Wi-Fi / Online</span>
                 </button>
                 <button
@@ -567,11 +567,11 @@ const MainAppContent: React.FC = () => {
                   }}
                   className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                     mode === 'local'
-                      ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-                      : 'text-stone-500 hover:text-stone-900'
+                      ? 'bg-[#739552] text-white shadow-sm'
+                      : 'text-stone-700 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-700'
                   }`}
                 >
-                  <Users size={13} className="text-[#739552]" />
+                  <Users size={13} className={mode === 'local' ? 'text-white' : 'text-[#739552]'} />
                   <span>Pass & Play</span>
                 </button>
               </div>
@@ -580,7 +580,7 @@ const MainAppContent: React.FC = () => {
                 {isOnline && socketHook.roomState?.roomId && (
                   <button
                     onClick={handleCopyShareLink}
-                    className="px-2.5 py-1.5 rounded-xl bg-[#739552]/10 hover:bg-[#739552]/20 border border-[#739552]/30 text-[#4c6633] dark:text-[#8bc75a] font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                    className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 border border-stone-200 dark:border-[#739552]/30 text-[#4c6633] dark:text-[#8bc75a] font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs"
                   >
                     {copiedShareLink ? <Check size={13} /> : <Share2 size={13} />}
                     <span>{copiedShareLink ? 'Link Copied!' : `Wi-Fi Room: ${socketHook.roomState.roomId}`}</span>
@@ -590,12 +590,12 @@ const MainAppContent: React.FC = () => {
                 <button
                   onClick={handleRequestOneTimeHint}
                   disabled={!isUserTurn}
-                  className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold shadow-sm ${
+                  className={`px-3 py-1.5 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold shadow-xs ${
                     singleUseHint
                       ? 'bg-[#739552] text-white border-[#739552]'
                       : isUserTurn
                       ? 'bg-white dark:bg-stone-800 hover:bg-stone-50 border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200'
-                      : 'bg-stone-100 dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-400 cursor-not-allowed opacity-50'
+                      : 'bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-400 cursor-not-allowed opacity-50'
                   }`}
                 >
                   <Lightbulb size={13} className={isUserTurn ? 'text-amber-500' : 'text-stone-400'} />
@@ -604,7 +604,7 @@ const MainAppContent: React.FC = () => {
 
                 <button
                   onClick={toggleFullscreen}
-                  className="p-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 transition-colors shadow-sm"
+                  className="p-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 transition-colors shadow-xs"
                 >
                   {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
                 </button>
@@ -619,7 +619,7 @@ const MainAppContent: React.FC = () => {
                 <div className="flex items-center justify-between px-3 py-2 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm">
                   <div className="flex items-center gap-2.5">
                     <div className="relative">
-                      <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-lg font-bold border border-stone-200 dark:border-stone-700 shadow-sm">
+                      <div className="w-9 h-9 rounded-xl bg-white dark:bg-stone-800 flex items-center justify-center text-lg font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
                         {mode === 'computer' ? '🤖' : isOnline ? '👤' : '♟️'}
                       </div>
                       <span
@@ -644,7 +644,7 @@ const MainAppContent: React.FC = () => {
                                 ? 'bg-amber-100 text-amber-900 border border-amber-300'
                                 : difficulty === 'hard'
                                 ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                                : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
                             }`}
                           >
                             {difficulty === 'grandmaster' ? 'Expert 2400+' : difficulty === 'hard' ? 'Hard 1950' : 'Medium 1500'}
@@ -829,7 +829,7 @@ const MainAppContent: React.FC = () => {
                     <button
                       onClick={flipBoard}
                       title="Flip board orientation"
-                      className="px-2.5 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-colors flex items-center gap-1"
+                      className="px-2.5 py-1.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 shadow-xs"
                     >
                       <RotateCcw size={13} />
                       <span>Flip</span>

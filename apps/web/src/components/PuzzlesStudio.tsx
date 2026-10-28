@@ -152,7 +152,7 @@ export const PuzzlesStudio: React.FC = () => {
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
       {/* Top Banner: Stats & Streaks */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white rounded-3xl p-5 shadow-lg border border-stone-800 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 text-stone-900 dark:text-white rounded-3xl p-5 shadow-sm border border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md shadow-purple-900/30">
             ⚡
@@ -161,7 +161,7 @@ export const PuzzlesStudio: React.FC = () => {
             <h1 className="font-extrabold text-lg sm:text-xl tracking-tight flex items-center gap-2">
               Tactical Puzzles Arena
             </h1>
-            <p className="text-xs text-stone-400">
+            <p className="text-xs text-stone-600 dark:text-stone-400">
               Pattern recognition, mate nets, forks, pins, and master tactical calculations
             </p>
           </div>
@@ -169,21 +169,21 @@ export const PuzzlesStudio: React.FC = () => {
 
         {/* Puzzle Rating Pill */}
         <div className="flex items-center gap-3">
-          <div className="bg-stone-800/80 border border-stone-700 rounded-2xl px-4 py-2 flex items-center gap-3">
+          <div className="bg-white dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-xs">
             <div>
-              <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider">
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">
                 Puzzle Rating
               </span>
-              <div className="text-xl font-mono font-extrabold text-purple-400">
+              <div className="text-xl font-mono font-extrabold text-purple-600 dark:text-purple-400">
                 {pStats.rating}
               </div>
             </div>
-            <div className="w-px h-8 bg-stone-700" />
+            <div className="w-px h-8 bg-stone-200 dark:bg-stone-700" />
             <div>
-              <span className="text-[10px] text-stone-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                <Flame size={12} className="text-amber-400" /> Streak
+              <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider flex items-center gap-1">
+                <Flame size={12} className="text-amber-500" /> Streak
               </span>
-              <div className="text-xl font-mono font-extrabold text-amber-400">
+              <div className="text-xl font-mono font-extrabold text-amber-500 dark:text-amber-400">
                 {pStats.streak}
               </div>
             </div>
@@ -211,7 +211,7 @@ export const PuzzlesStudio: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono">
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-mono border border-stone-200 dark:border-stone-700 shadow-xs">
                 Elo {activePuzzle.rating}
               </span>
               <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-[#739552]/10 text-[#5f7d41] dark:text-[#88c558] border border-[#739552]/20">
@@ -259,19 +259,19 @@ export const PuzzlesStudio: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleRetry}
-                className="px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                className="px-3 py-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <RotateCcw size={13} /> Retry
               </button>
               <button
                 onClick={() => setShowHint(!showHint)}
-                className="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                className="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <Lightbulb size={13} /> {showHint ? 'Hide Hint' : 'Hint'}
               </button>
               <button
                 onClick={() => setShowSolution(!showSolution)}
-                className="px-3 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                className="px-3 py-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-bold text-xs flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <Eye size={13} /> {showSolution ? 'Hide Solution' : 'Solution'}
               </button>
@@ -281,7 +281,7 @@ export const PuzzlesStudio: React.FC = () => {
               <button
                 onClick={handlePrevPuzzle}
                 title="Previous Puzzle"
-                className="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors"
+                className="p-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 transition-colors shadow-xs"
               >
                 <ChevronLeft size={16} />
               </button>
@@ -312,8 +312,8 @@ export const PuzzlesStudio: React.FC = () => {
 
           {/* Solution & Explanation Card */}
           {showSolution && (
-            <div className="bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl p-4 flex flex-col gap-2 shadow-sm animate-in fade-in">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1">
+            <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl p-4 flex flex-col gap-2 shadow-xs animate-in fade-in">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1">
                 <BookOpen size={12} /> Solution Explanation
               </span>
               <div className="font-mono text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
@@ -321,13 +321,13 @@ export const PuzzlesStudio: React.FC = () => {
                 {activePuzzle.solutionMoves.map((m, i) => (
                   <span
                     key={i}
-                    className="px-1.5 py-0.5 rounded bg-stone-200 dark:bg-stone-700 text-[11px]"
+                    className="px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-transparent text-[11px]"
                   >
                     {m.san || `${m.from}-${m.to}`}
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed mt-1">
+              <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed mt-1">
                 {activePuzzle.explanation}
               </p>
             </div>
@@ -335,7 +335,7 @@ export const PuzzlesStudio: React.FC = () => {
 
           {/* Category & Difficulty Filters Card */}
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-5 shadow-sm flex flex-col gap-3">
-            <h3 className="font-bold text-xs uppercase tracking-wider text-stone-400 flex items-center gap-1.5">
+            <h3 className="font-bold text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
               <Filter size={13} /> Puzzle Themes & Categories
             </h3>
 
@@ -356,7 +356,7 @@ export const PuzzlesStudio: React.FC = () => {
                   className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all ${
                     selectedCategory === c.id
                       ? 'bg-[#739552] text-white shadow-sm'
-                      : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200'
+                      : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-300 hover:bg-stone-50 border border-stone-200 dark:border-stone-700 shadow-xs'
                   }`}
                 >
                   {c.label}
@@ -365,7 +365,7 @@ export const PuzzlesStudio: React.FC = () => {
             </div>
 
             <div className="border-t border-stone-100 dark:border-stone-800 pt-3 flex flex-col gap-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
                 Difficulty Level
               </span>
               <div className="grid grid-cols-2 gap-1.5">
@@ -381,7 +381,7 @@ export const PuzzlesStudio: React.FC = () => {
                     className={`p-2 rounded-xl text-xs font-bold transition-all text-center ${
                       selectedDifficulty === d.id
                         ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-sm'
-                        : 'bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 text-stone-600 hover:bg-stone-100'
+                        : 'bg-white dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-50 shadow-xs'
                     }`}
                   >
                     {d.label}

@@ -94,7 +94,7 @@ export const WatchStudio: React.FC = () => {
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 text-white rounded-3xl p-6 shadow-xl border border-stone-800 flex items-center justify-between flex-wrap gap-4">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 text-stone-900 dark:text-white rounded-3xl p-6 shadow-sm border border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-600 to-orange-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-rose-900/40">
             📺
@@ -104,13 +104,13 @@ export const WatchStudio: React.FC = () => {
               Watch Chess Arena & Broadcasts
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
             </h1>
-            <p className="text-xs text-stone-400 mt-1 max-w-md">
+            <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 max-w-md">
               Live broadcast boards, major international championship events, standings, and chess journalism.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 bg-stone-800/80 px-3 py-1.5 rounded-xl border border-stone-700 text-xs font-semibold">
+        <div className="flex items-center gap-2 bg-white dark:bg-stone-800/80 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-800 dark:text-stone-200 shadow-xs">
           <Radio size={14} className="text-rose-500" />
           <span>FIDE Broadcast Feed Connected</span>
         </div>
@@ -131,7 +131,7 @@ export const WatchStudio: React.FC = () => {
                 </h3>
               </div>
 
-              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+              <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-300 shadow-xs">
                 Eval: +0.42
               </span>
             </div>
@@ -170,7 +170,7 @@ export const WatchStudio: React.FC = () => {
               {TOURNAMENTS.map((t) => (
                 <div
                   key={t.id}
-                  className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800/40 flex flex-col justify-between"
+                  className="p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-800/40 flex flex-col justify-between shadow-xs hover:border-stone-300 transition-colors"
                 >
                   <div>
                     <div className="flex items-center justify-between pb-2 border-b border-stone-200/60 dark:border-stone-700/60">

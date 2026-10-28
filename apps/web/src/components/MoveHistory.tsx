@@ -81,7 +81,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             <h3 className="font-bold text-stone-900 dark:text-stone-100 text-xs uppercase tracking-wider">
               Moves
             </h3>
-            <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700">
+            <span className="text-[10px] font-bold text-stone-700 dark:text-stone-400 bg-white dark:bg-stone-800 px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700 shadow-xs">
               {moves.length} plies
             </span>
           </div>
@@ -90,7 +90,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             <button
               onClick={() => setShowFullReportModal(true)}
               title="Expand full report"
-              className="flex items-center gap-1 text-[11px] text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors font-semibold"
+              className="flex items-center gap-1 text-[11px] text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white px-2 py-1 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors font-semibold"
             >
               <Maximize2 size={12} />
               <span>Report</span>
@@ -165,7 +165,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             onClick={() => onSelectPly(-2)}
             disabled={moves.length === 0 || (activePly === -1 && moves.length === 0)}
             title="Start of game (|<<)"
-            className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
           >
             <ChevronsLeft size={15} />
           </button>
@@ -173,7 +173,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             onClick={() => onSelectPly(Math.max(-2, activePly - 1))}
             disabled={moves.length === 0 || activePly <= -2}
             title="Previous move (<)"
-            className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
           >
             <ChevronLeft size={15} />
           </button>
@@ -187,7 +187,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             }}
             disabled={moves.length === 0 || currentPlyIndex === -1}
             title="Next move (>)"
-            className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
           >
             <ChevronRight size={15} />
           </button>
@@ -195,7 +195,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             onClick={() => onSelectPly(-1)}
             disabled={moves.length === 0 || currentPlyIndex === -1}
             title="Current live position (>>|)"
-            className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white disabled:opacity-30 transition-colors"
           >
             <ChevronsRight size={15} />
           </button>
@@ -215,18 +215,18 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
               </div>
               <button
                 onClick={() => setShowFullReportModal(false)}
-                className="p-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"
               >
                 <X size={18} />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3 py-3 border-b border-stone-100 dark:border-stone-800 shrink-0 text-xs">
-              <div className="bg-stone-50 dark:bg-stone-800/60 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700">
+              <div className="bg-white dark:bg-stone-800/60 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xs">
                 <span className="text-stone-500 dark:text-stone-400 font-semibold block">Total Moves</span>
                 <span className="text-sm font-bold text-stone-900 dark:text-stone-100">{moves.length} plies</span>
               </div>
-              <div className="bg-stone-50 dark:bg-stone-800/60 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700">
+              <div className="bg-white dark:bg-stone-800/60 p-2.5 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xs">
                 <span className="text-stone-500 dark:text-stone-400 font-semibold block">Result</span>
                 <span className="text-sm font-bold text-stone-900 dark:text-stone-100">
                   {snapshot.result || 'In Progress'}
@@ -242,7 +242,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                   {pairedMoves.map((pair) => (
                     <div
                       key={pair.turnNumber}
-                      className="bg-stone-50 dark:bg-stone-800/50 p-2 rounded-lg border border-stone-200 dark:border-stone-700 flex items-center justify-between"
+                      className="bg-white dark:bg-stone-800/50 p-2 rounded-lg border border-stone-200 dark:border-stone-700 flex items-center justify-between shadow-xs"
                     >
                       <span className="text-stone-400 dark:text-stone-500 font-semibold">{pair.turnNumber}.</span>
                       <span className="font-bold text-stone-900 dark:text-stone-100">{pair.white?.move.san}</span>
@@ -263,7 +263,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
               </button>
               <button
                 onClick={() => setShowFullReportModal(false)}
-                className="px-4 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-semibold text-xs transition-colors"
+                className="px-4 py-2 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-300 font-semibold text-xs transition-colors shadow-xs"
               >
                 Close
               </button>

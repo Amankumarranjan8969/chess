@@ -144,7 +144,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
       {/* 1. COMPACT PLAYER WELCOME & INTERACTIVE STREAK BANNER */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-white rounded-3xl p-4 sm:p-5 shadow-xl border border-stone-800 flex items-center justify-between flex-wrap gap-4 relative overflow-hidden">
+      <div className="bg-white dark:bg-gradient-to-r dark:from-stone-900 dark:via-stone-850 dark:to-stone-900 text-stone-900 dark:text-white rounded-3xl p-4 sm:p-5 shadow-sm border border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#739552]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex items-center gap-4 z-10">
@@ -163,11 +163,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-xl sm:text-2xl tracking-tight text-white">
+              <h1 className="font-extrabold text-xl sm:text-2xl tracking-tight text-stone-900 dark:text-white">
                 Welcome back, {user.username}!
               </h1>
             </div>
-            <p className="text-xs text-stone-300 mt-0.5 max-w-md font-medium">
+            <p className="text-xs text-stone-600 dark:text-stone-300 mt-0.5 max-w-md font-medium">
               {user.bio}
             </p>
 
@@ -176,16 +176,16 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               <button
                 onClick={() => setShowStreakModal(true)}
                 title="View Streak & Activity History"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-all cursor-pointer group"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 dark:bg-amber-500/15 hover:bg-amber-500/20 dark:hover:bg-amber-500/25 border border-amber-500/30 text-amber-700 dark:text-amber-300 transition-all cursor-pointer group"
               >
-                <Flame size={14} className="text-amber-400 group-hover:scale-110 transition-transform" />
+                <Flame size={14} className="text-amber-500 group-hover:scale-110 transition-transform" />
                 <span>{user.streakDays}-Day Streak</span>
-                <span className="text-[10px] text-amber-400/80 underline ml-0.5">View</span>
+                <span className="text-[10px] text-amber-600 dark:text-amber-400/80 underline ml-0.5">View</span>
               </button>
-              <span className="text-stone-500">•</span>
+              <span className="text-stone-400 dark:text-stone-500">•</span>
               <div
                 onClick={() => navigateTo('puzzles')}
-                className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors cursor-pointer"
                 title="Go to Puzzles"
               >
                 <Target size={14} />
@@ -205,21 +205,21 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
             title="Click to view Rapid Statistics"
-            className={`bg-stone-800/90 hover:bg-stone-800 border rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all ${
+            className={`bg-white dark:bg-stone-800/90 hover:bg-stone-50 dark:hover:bg-stone-800 border rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all shadow-xs ${
               statCategory === 'rapid'
-                ? 'border-[#739552] ring-2 ring-[#739552]/40 shadow-md'
-                : 'border-stone-700/80 hover:border-stone-600'
+                ? 'border-[#739552] ring-2 ring-[#739552]/40 shadow-sm'
+                : 'border-stone-200 dark:border-stone-700/80 hover:border-stone-400'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-stone-300 font-bold uppercase tracking-wider">
+              <span className="text-[10px] text-stone-600 dark:text-stone-300 font-bold uppercase tracking-wider">
                 Rapid
               </span>
-              <span className="text-[10px] font-mono font-bold text-emerald-400 flex items-center">
+              <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center">
                 <TrendingUp size={10} className="mr-0.5" /> +38
               </span>
             </div>
-            <span className="text-xl font-mono font-extrabold text-emerald-400">
+            <span className="text-xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
               {user.ratings.rapid.rating}
             </span>
           </div>
@@ -232,21 +232,21 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
             title="Click to view Blitz Statistics"
-            className={`bg-stone-800/90 hover:bg-stone-800 border rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all ${
+            className={`bg-white dark:bg-stone-800/90 hover:bg-stone-50 dark:hover:bg-stone-800 border rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all shadow-xs ${
               statCategory === 'blitz'
-                ? 'border-yellow-500 ring-2 ring-yellow-500/40 shadow-md'
-                : 'border-stone-700/80 hover:border-stone-600'
+                ? 'border-yellow-500 ring-2 ring-yellow-500/40 shadow-sm'
+                : 'border-stone-200 dark:border-stone-700/80 hover:border-stone-400'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-stone-300 font-bold uppercase tracking-wider">
+              <span className="text-[10px] text-stone-600 dark:text-stone-300 font-bold uppercase tracking-wider">
                 Blitz
               </span>
-              <span className="text-[10px] font-mono font-bold text-yellow-400 flex items-center">
+              <span className="text-[10px] font-mono font-bold text-amber-600 dark:text-yellow-400 flex items-center">
                 <TrendingUp size={10} className="mr-0.5" /> +25
               </span>
             </div>
-            <span className="text-xl font-mono font-extrabold text-yellow-400">
+            <span className="text-xl font-mono font-extrabold text-amber-600 dark:text-yellow-400">
               {user.ratings.blitz.rating}
             </span>
           </div>
@@ -259,21 +259,21 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
             title="Click to view Bullet Statistics"
-            className={`bg-stone-800/90 hover:bg-stone-800 border rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all ${
+            className={`bg-white dark:bg-stone-800/90 hover:bg-stone-50 dark:hover:bg-stone-800 border rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all shadow-xs ${
               statCategory === 'bullet'
-                ? 'border-amber-500 ring-2 ring-amber-500/40 shadow-md'
-                : 'border-stone-700/80 hover:border-stone-600'
+                ? 'border-amber-600 ring-2 ring-amber-600/40 shadow-sm'
+                : 'border-stone-200 dark:border-stone-700/80 hover:border-stone-400'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-stone-300 font-bold uppercase tracking-wider">
+              <span className="text-[10px] text-stone-600 dark:text-stone-300 font-bold uppercase tracking-wider">
                 Bullet
               </span>
-              <span className="text-[10px] font-mono font-bold text-amber-400 flex items-center">
+              <span className="text-[10px] font-mono font-bold text-amber-700 dark:text-amber-400 flex items-center">
                 <TrendingUp size={10} className="mr-0.5" /> +15
               </span>
             </div>
-            <span className="text-xl font-mono font-extrabold text-amber-400">
+            <span className="text-xl font-mono font-extrabold text-amber-700 dark:text-amber-400">
               {user.ratings.bullet.rating}
             </span>
           </div>
@@ -282,17 +282,17 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           <div
             onClick={() => navigateTo('puzzles')}
             title="Click to solve tactical puzzles"
-            className="bg-stone-800/90 hover:bg-stone-800 border border-stone-700/80 hover:border-purple-500 rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all"
+            className="bg-white dark:bg-stone-800/90 hover:bg-stone-50 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-700/80 hover:border-purple-500 rounded-2xl p-2.5 flex flex-col justify-between min-w-[105px] h-[74px] cursor-pointer transition-all shadow-xs"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-stone-300 font-bold uppercase tracking-wider">
+              <span className="text-[10px] text-stone-600 dark:text-stone-300 font-bold uppercase tracking-wider">
                 Puzzles
               </span>
-              <span className="text-[10px] font-mono font-bold text-purple-400">
+              <span className="text-[10px] font-mono font-bold text-purple-600 dark:text-purple-400">
                 {user.ratings.puzzles.streak} streak
               </span>
             </div>
-            <span className="text-xl font-mono font-extrabold text-purple-400">
+            <span className="text-xl font-mono font-extrabold text-purple-600 dark:text-purple-400">
               {user.ratings.puzzles.rating}
             </span>
           </div>
@@ -313,8 +313,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
 
           {/* Quick Time Control Selector Pills */}
-          <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700">
-            <span className="text-[11px] text-stone-500 dark:text-stone-400 px-2 font-medium">
+          <div className="flex items-center gap-1.5 bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
+            <span className="text-[11px] text-stone-600 dark:text-stone-400 px-2 font-medium">
               Time Format:
             </span>
             {[
@@ -330,7 +330,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   selectedTimeControl === tc.id
                     ? 'bg-[#739552] text-white shadow-sm'
-                    : 'text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white'
+                    : 'text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-700'
                 }`}
               >
                 {tc.id}
@@ -423,7 +423,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 <select
                   value={selectedDifficulty}
                   onChange={(e) => setSelectedDifficulty(e.target.value as AIDifficulty)}
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-700 focus:outline-none"
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 focus:outline-none shadow-xs"
                   title="Select AI Difficulty"
                 >
                   <option value="easy">Easy (1000)</option>
@@ -461,7 +461,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
 
           {/* Time control tab toggle */}
-          <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700">
+          <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
             {(['rapid', 'blitz', 'bullet', 'daily'] as const).map((cat) => (
               <button
                 key={cat}
@@ -469,7 +469,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 className={`px-3 py-1.5 rounded-lg capitalize transition-all ${
                   statCategory === cat
                     ? 'bg-[#739552] text-white shadow-sm'
-                    : 'text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white'
+                    : 'text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-750'
                 }`}
               >
                 {cat}
@@ -481,9 +481,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         {/* High-Contrast 4-Metric Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Card 1: Current Rating & Highest */}
-          <div className="bg-stone-50 dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80">
+          <div className="bg-white dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                 Current {statCategory} Rating
               </span>
               <span title="Calculated from your official matches" className="cursor-help">
@@ -499,9 +499,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
 
           {/* Card 2: Games Played & Win Rate */}
-          <div className="bg-stone-50 dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80">
+          <div className="bg-white dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                 Total Games Played
               </span>
               <span title="Total rated games completed" className="cursor-help">
@@ -511,15 +511,15 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             <div className="text-2xl font-mono font-extrabold text-stone-900 dark:text-stone-100 mt-1">
               {activeRating.gamesPlayed}
             </div>
-            <span className="text-xs text-stone-600 dark:text-stone-300 font-semibold block mt-1">
+            <span className="text-xs text-stone-700 dark:text-stone-300 font-semibold block mt-1">
               Overall Win Rate: {winRate}%
             </span>
           </div>
 
           {/* Card 3: Win / Draw / Loss Record */}
-          <div className="bg-stone-50 dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80">
+          <div className="bg-white dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                 W / D / L Breakdown
               </span>
               <span title="Wins, Draws, and Losses in this format" className="cursor-help">
@@ -529,11 +529,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             <div className="text-2xl font-mono font-extrabold text-stone-900 dark:text-stone-100 mt-1 flex items-center gap-1.5">
               <span className="text-emerald-600 dark:text-emerald-400">{activeRating.wins}W</span>
               <span className="text-stone-400">-</span>
-              <span className="text-stone-500 dark:text-stone-300">{activeRating.draws}D</span>
+              <span className="text-stone-600 dark:text-stone-300">{activeRating.draws}D</span>
               <span className="text-stone-400">-</span>
               <span className="text-rose-500">{activeRating.losses}L</span>
             </div>
-            <span className="text-xs text-stone-600 dark:text-stone-300 font-semibold block mt-1">
+            <span className="text-xs text-stone-700 dark:text-stone-300 font-semibold block mt-1">
               {(
                 ((activeRating.wins + 0.5 * activeRating.draws) /
                   Math.max(1, activeRating.gamesPlayed)) *
@@ -544,9 +544,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
 
           {/* Card 4: Recent 30-Day Trend */}
-          <div className="bg-stone-50 dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80">
+          <div className="bg-white dark:bg-stone-800/60 p-4 rounded-2xl border border-stone-200 dark:border-stone-700/80 shadow-xs">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              <span className="text-[10px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider">
                 Recent 30-Day Trend
               </span>
               <TrendingUp size={13} className="text-emerald-500" />
@@ -554,7 +554,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             <div className="text-2xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
               <span>+38 pts</span>
             </div>
-            <span className="text-xs text-stone-600 dark:text-stone-300 font-semibold block mt-1">
+            <span className="text-xs text-stone-700 dark:text-stone-300 font-semibold block mt-1">
               +6.2% rating gain
             </span>
           </div>
@@ -563,9 +563,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         {/* Visual Win-Rate Progress Bar & Tactical Puzzle Rating Comparison */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
           {/* Visual Segmented Win/Draw/Loss Bar */}
-          <div className="bg-stone-50 dark:bg-stone-850 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 flex flex-col justify-between">
+          <div className="bg-white dark:bg-stone-850 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-stone-800 dark:text-stone-200">
+              <span className="text-xs font-bold text-stone-900 dark:text-stone-200">
                 Win / Draw / Loss Visual Distribution
               </span>
               <span className="text-xs font-mono font-semibold text-stone-500">
@@ -605,7 +605,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 Wins ({activeRating.wins} •{' '}
                 {Math.round((activeRating.wins / Math.max(1, activeRating.gamesPlayed)) * 100)}%)
               </span>
-              <span className="text-stone-500 dark:text-stone-300 flex items-center gap-1">
+              <span className="text-stone-600 dark:text-stone-300 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-stone-400" />
                 Draws ({activeRating.draws} •{' '}
                 {Math.round((activeRating.draws / Math.max(1, activeRating.gamesPlayed)) * 100)}%)
@@ -619,9 +619,9 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </div>
 
           {/* Puzzle Performance Card (Explicitly Separated from Match Elo) */}
-          <div className="bg-stone-50 dark:bg-stone-850 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 flex items-center justify-between">
+          <div className="bg-white dark:bg-stone-850 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-xs flex items-center justify-between">
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xl">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 dark:bg-purple-500/15 border border-purple-500/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xl">
                 🧩
               </div>
               <div>
@@ -633,7 +633,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                     Separate Metric
                   </span>
                 </div>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5">
                   Solved: {user.ratings.puzzles.solvedCount} puzzles • Streak: {user.ratings.puzzles.streak} in a row
                 </p>
                 <div className="text-xs font-mono font-extrabold text-purple-600 dark:text-purple-400 mt-1">
@@ -653,7 +653,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
         </div>
 
         {/* Rating History Sparkline Chart (7d / 30d / 90d Filter) */}
-        <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-850 border border-stone-200 dark:border-stone-800 flex flex-col gap-2">
+        <div className="p-4 rounded-2xl bg-white dark:bg-stone-850 border border-stone-200 dark:border-stone-800 shadow-xs flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
@@ -661,15 +661,15 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               </span>
               <span className="text-[11px] text-[#739552] font-mono font-bold">+38 Rating points this month</span>
             </div>
-            <div className="flex items-center gap-1 bg-stone-200/80 dark:bg-stone-700/80 p-0.5 rounded-lg text-[10px] font-bold">
+            <div className="flex items-center gap-1 bg-white dark:bg-stone-700/80 border border-stone-200 dark:border-stone-700 p-0.5 rounded-lg text-[10px] font-bold shadow-2xs">
               {(['7d', '30d', '90d'] as const).map((period) => (
                 <button
                   key={period}
                   onClick={() => setStatsPeriod(period)}
                   className={`px-2 py-0.5 rounded-md transition-all ${
                     statsPeriod === period
-                      ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-xs'
-                      : 'text-stone-600 dark:text-stone-300'
+                      ? 'bg-[#739552] text-white shadow-xs'
+                      : 'text-stone-700 dark:text-stone-300 hover:text-stone-950'
                   }`}
                 >
                   {period}
@@ -730,20 +730,20 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 value={historySearchQuery}
                 onChange={(e) => setHistorySearchQuery(e.target.value)}
                 placeholder="Search opponent / opening..."
-                className="pl-8 pr-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552] w-48"
+                className="pl-8 pr-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552] w-48 shadow-2xs"
               />
             </div>
 
             {/* Time control filter */}
-            <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700">
+            <div className="flex items-center gap-1 bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
               {(['all', 'rapid', 'blitz', 'bullet'] as const).map((f) => (
                 <button
                   key={f}
                   onClick={() => setHistoryCategoryFilter(f)}
                   className={`px-2.5 py-1 rounded-lg capitalize transition-all ${
                     historyCategoryFilter === f
-                      ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                      ? 'bg-[#739552] text-white shadow-xs'
+                      : 'text-stone-700 dark:text-stone-400 hover:text-stone-950 dark:hover:text-stone-200 hover:bg-stone-50'
                   }`}
                 >
                   {f}
@@ -752,15 +752,15 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
             </div>
 
             {/* Result filter (Win / Loss / Draw) */}
-            <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700">
+            <div className="flex items-center gap-1 bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold border border-stone-200 dark:border-stone-700 shadow-xs">
               {(['all', 'win', 'loss', 'draw'] as const).map((r) => (
                 <button
                   key={r}
                   onClick={() => setHistoryResultFilter(r)}
-                  className={`px-2 py-1 rounded-lg capitalize transition-all ${
+                  className={`px-2.5 py-1 rounded-lg capitalize transition-all ${
                     historyResultFilter === r
-                      ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-sm'
-                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                      ? 'bg-[#739552] text-white shadow-xs'
+                      : 'text-stone-700 dark:text-stone-400 hover:text-stone-950 dark:hover:text-stone-200 hover:bg-stone-50'
                   }`}
                 >
                   {r}
@@ -772,8 +772,8 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
 
         {/* Games Table or Empty State */}
         {filteredGames.length === 0 ? (
-          <div className="p-8 text-center rounded-2xl border border-dashed border-stone-200 dark:border-stone-800 flex flex-col items-center justify-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-400 text-lg">
+          <div className="p-8 text-center rounded-2xl border border-dashed border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex flex-col items-center justify-center gap-2">
+            <div className="w-10 h-10 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-400 text-lg shadow-xs">
               ♟
             </div>
             <h3 className="font-bold text-sm text-stone-800 dark:text-stone-200">
@@ -834,7 +834,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                             isWin
                               ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
                               : isDraw
-                              ? 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
+                              ? 'bg-white text-stone-700 dark:bg-stone-800 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shadow-xs'
                               : 'bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
                           }`}
                         >
@@ -908,11 +908,11 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               value={newFriendInput}
               onChange={(e) => setNewFriendInput(e.target.value)}
               placeholder="Username to add..."
-              className="px-3 py-1.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552]"
+              className="px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#739552] shadow-2xs"
             />
             <button
               type="submit"
-              className="px-3 py-1.5 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold text-xs flex items-center gap-1"
+              className="px-3 py-1.5 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 font-bold text-xs flex items-center gap-1 shadow-xs"
             >
               <UserPlus size={13} /> Add
             </button>
@@ -930,7 +930,7 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           {filteredFriends.map((f) => (
             <div
               key={f.id}
-              className="p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-800/40 flex items-center justify-between"
+              className="p-3.5 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-800/40 shadow-xs flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -1000,20 +1000,20 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
               </button>
             </div>
 
-            <div className="bg-stone-50 dark:bg-stone-800 p-4 rounded-xl flex items-center justify-between text-center">
+            <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-4 rounded-xl flex items-center justify-between text-center shadow-xs">
               <div>
-                <span className="text-[10px] uppercase font-bold text-stone-400">Streak Record</span>
-                <div className="text-xl font-bold font-mono text-amber-500">14 Days</div>
+                <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400">Streak Record</span>
+                <div className="text-xl font-bold font-mono text-amber-600 dark:text-amber-500">14 Days</div>
               </div>
               <div className="w-px h-8 bg-stone-200 dark:bg-stone-700" />
               <div>
-                <span className="text-[10px] uppercase font-bold text-stone-400">Daily Puzzles</span>
-                <div className="text-xl font-bold font-mono text-emerald-500">{user.dailyGoalSolved}/3</div>
+                <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400">Daily Puzzles</span>
+                <div className="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-500">{user.dailyGoalSolved}/3</div>
               </div>
               <div className="w-px h-8 bg-stone-200 dark:bg-stone-700" />
               <div>
-                <span className="text-[10px] uppercase font-bold text-stone-400">Total Solved</span>
-                <div className="text-xl font-bold font-mono text-purple-500">{user.ratings.puzzles.solvedCount}</div>
+                <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400">Total Solved</span>
+                <div className="text-xl font-bold font-mono text-purple-600 dark:text-purple-500">{user.ratings.puzzles.solvedCount}</div>
               </div>
             </div>
 

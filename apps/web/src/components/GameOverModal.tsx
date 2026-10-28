@@ -56,22 +56,22 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className={`relative w-full max-w-md p-6 sm:p-8 rounded-2xl border text-center shadow-2xl overflow-hidden bg-white ${
+        className={`relative w-full max-w-md p-6 sm:p-8 rounded-2xl border text-center shadow-2xl overflow-hidden bg-white dark:bg-stone-900 ${
           userWon
-            ? 'border-amber-300 shadow-[0_10px_40px_rgba(217,119,6,0.15)]'
+            ? 'border-amber-300 dark:border-amber-600 shadow-[0_10px_40px_rgba(217,119,6,0.15)]'
             : userLost
-            ? 'border-rose-300 shadow-[0_10px_40px_rgba(225,29,72,0.15)]'
-            : 'border-stone-300 shadow-[0_10px_40px_rgba(0,0,0,0.1)]'
+            ? 'border-rose-300 dark:border-rose-600 shadow-[0_10px_40px_rgba(225,29,72,0.15)]'
+            : 'border-stone-200 dark:border-stone-800 shadow-[0_10px_40px_rgba(0,0,0,0.1)]'
         }`}
       >
         <div className="relative flex flex-col items-center">
           <div
             className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 shadow-lg border-2 ${
               userWon
-                ? 'bg-amber-50 border-amber-400 text-amber-600'
+                ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-400 text-amber-600 dark:text-amber-400'
                 : userLost
-                ? 'bg-rose-50 border-rose-400 text-rose-600'
-                : 'bg-stone-50 border-stone-400 text-stone-600'
+                ? 'bg-rose-50 dark:bg-rose-950/50 border-rose-400 text-rose-600 dark:text-rose-400'
+                : 'bg-white dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300'
             }`}
           >
             {userWon ? (
@@ -85,13 +85,17 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 
           <h2
             className={`text-3xl font-black uppercase tracking-tight mb-1 ${
-              userWon ? 'text-amber-700' : userLost ? 'text-rose-600' : 'text-stone-800'
+              userWon
+                ? 'text-amber-700 dark:text-amber-400'
+                : userLost
+                ? 'text-rose-600 dark:text-rose-400'
+                : 'text-stone-800 dark:text-stone-100'
             }`}
           >
             {userWon ? 'Victory!' : userLost ? 'Defeat' : 'Draw'}
           </h2>
 
-          <p className="text-stone-600 text-base font-semibold mb-2">
+          <p className="text-stone-600 dark:text-stone-300 text-base font-semibold mb-2">
             {userWon
               ? 'You won the match!'
               : userLost
@@ -99,7 +103,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               : 'The game ended in a draw'}
           </p>
 
-          <div className="inline-block px-3.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-xs font-mono font-bold text-stone-700 mb-6">
+          <div className="inline-block px-3.5 py-1 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold text-stone-700 dark:text-stone-300 mb-6 shadow-xs">
             Result: {result} • {formatReason(endReason)}
           </div>
 
@@ -118,7 +122,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               onClick={onPlayAgain}
               className={`w-full py-3 px-6 rounded-xl font-bold text-xs tracking-wide uppercase transition-all shadow-sm flex items-center justify-center gap-2 ${
                 onOpenGameReview
-                  ? 'bg-stone-900 text-white hover:bg-stone-800'
+                  ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 hover:bg-stone-800'
                   : 'bg-[#739552] hover:bg-[#648346] text-white'
               }`}
             >
@@ -127,7 +131,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 
             <button
               onClick={onReviewBoard}
-              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-stone-700 hover:text-black bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-stone-700 dark:text-stone-300 hover:text-black dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 transition-colors flex items-center justify-center gap-1.5 shadow-xs"
             >
               Close & Stay on Board
             </button>
