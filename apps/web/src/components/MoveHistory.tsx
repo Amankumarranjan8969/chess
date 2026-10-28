@@ -27,7 +27,6 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showFullReportModal, setShowFullReportModal] = useState<boolean>(false);
 
-  // Auto-scroll to latest move only inside its fixed container
   useEffect(() => {
     if (currentPlyIndex === -1 && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -66,43 +65,43 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
 
   return (
     <>
-      {/* Locked-Height In-Game Move Register (Strictly Non-Expanding) */}
-      <div className="bg-white border border-stone-200 rounded-2xl p-3 flex flex-col h-[200px] max-h-[200px] overflow-hidden shadow-sm shrink-0">
+      {/* Compact Locked-Height Move Register (Strictly Non-Extending) */}
+      <div className="bg-white border border-stone-200 rounded-xl p-2.5 flex flex-col h-[170px] max-h-[170px] overflow-hidden shadow-sm shrink-0">
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-stone-200 shrink-0">
+        <div className="flex items-center justify-between pb-1.5 border-b border-stone-200 shrink-0">
           <div className="flex items-center gap-1.5">
-            <h3 className="font-bold text-stone-800 text-xs uppercase tracking-wider">Moves</h3>
-            <span className="text-[10px] font-bold text-stone-400 bg-stone-100 px-1.5 py-0.2 rounded-full">
+            <h3 className="font-bold text-stone-800 text-[11px] uppercase tracking-wider">Moves</h3>
+            <span className="text-[9px] font-bold text-stone-400 bg-stone-100 px-1.5 py-0.2 rounded-full">
               {moves.length}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setShowFullReportModal(true)}
-              title="Expand full game report"
-              className="flex items-center gap-1 text-[11px] text-stone-600 hover:text-stone-900 px-1.5 py-0.5 rounded hover:bg-stone-100 transition-colors font-medium"
+              title="Expand full report"
+              className="flex items-center gap-1 text-[10px] text-stone-600 hover:text-stone-900 px-1.5 py-0.5 rounded hover:bg-stone-100 transition-colors font-semibold"
             >
-              <Maximize2 size={12} />
+              <Maximize2 size={11} />
               <span>Report</span>
             </button>
             <button
               onClick={exportPGN}
               disabled={moves.length === 0}
-              className="flex items-center gap-1 text-[11px] text-[#739552] hover:text-[#5f7d41] transition-colors disabled:opacity-30 font-bold"
+              className="flex items-center gap-0.5 text-[10px] text-[#739552] hover:text-[#5f7d41] transition-colors disabled:opacity-30 font-bold"
             >
-              <Download size={12} /> PGN
+              <Download size={11} /> PGN
             </button>
           </div>
         </div>
 
-        {/* Scrollable Move List Table - Strictly internal scroll, NEVER extends parent */}
+        {/* Scrollable Move List Table */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto overscroll-contain space-y-0.5 text-xs font-mono py-1.5 pr-1 scrollbar-thin"
+          className="flex-1 overflow-y-auto overscroll-contain space-y-0.5 text-xs font-mono py-1 pr-1 scrollbar-thin"
         >
           {pairedMoves.length === 0 ? (
-            <div className="text-stone-400 text-xs italic text-center py-6">
+            <div className="text-stone-400 text-xs italic text-center py-5">
               Moves will appear here
             </div>
           ) : (
@@ -113,12 +112,12 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
               return (
                 <div
                   key={pair.turnNumber}
-                  className="grid grid-cols-[34px_1fr_1fr] px-2 py-0.5 rounded hover:bg-stone-50 items-center transition-colors"
+                  className="grid grid-cols-[30px_1fr_1fr] px-1.5 py-0.5 rounded hover:bg-stone-50 items-center transition-colors"
                 >
-                  <span className="text-stone-400 font-semibold text-[11px]">{pair.turnNumber}.</span>
+                  <span className="text-stone-400 font-semibold text-[10px]">{pair.turnNumber}.</span>
                   <button
                     onClick={() => pair.white && onSelectPly(pair.white.ply)}
-                    className={`text-left px-1.5 py-0.5 rounded font-medium transition-all text-xs ${
+                    className={`text-left px-1 py-0.2 rounded font-medium transition-all text-[11px] ${
                       isWhiteActive
                         ? 'bg-[#739552]/15 text-[#5f7d41] font-bold ring-1 ring-[#739552]/40'
                         : 'text-stone-800 hover:text-black'
@@ -129,7 +128,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
                   {pair.black ? (
                     <button
                       onClick={() => onSelectPly(pair.black!.ply)}
-                      className={`text-left px-1.5 py-0.5 rounded font-medium transition-all text-xs ${
+                      className={`text-left px-1 py-0.2 rounded font-medium transition-all text-[11px] ${
                         isBlackActive
                           ? 'bg-[#739552]/15 text-[#5f7d41] font-bold ring-1 ring-[#739552]/40'
                           : 'text-stone-600 hover:text-black'
@@ -147,14 +146,14 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
         </div>
 
         {/* Compact Navigation Bar */}
-        <div className="flex items-center justify-between pt-1.5 border-t border-stone-200 shrink-0">
+        <div className="flex items-center justify-between pt-1 border-t border-stone-200 shrink-0">
           <button
             onClick={() => onSelectPly(-2)}
             disabled={moves.length === 0 || (activePly === -1 && moves.length === 0)}
             title="Start of game"
             className="p-1 rounded hover:bg-stone-100 text-stone-500 hover:text-stone-900 disabled:opacity-30"
           >
-            <ChevronsLeft size={14} />
+            <ChevronsLeft size={13} />
           </button>
           <button
             onClick={() => onSelectPly(Math.max(-2, activePly - 1))}
@@ -162,7 +161,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             title="Previous move"
             className="p-1 rounded hover:bg-stone-100 text-stone-500 hover:text-stone-900 disabled:opacity-30"
           >
-            <ChevronLeft size={14} />
+            <ChevronLeft size={13} />
           </button>
           <button
             onClick={() => {
@@ -176,7 +175,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             title="Next move"
             className="p-1 rounded hover:bg-stone-100 text-stone-500 hover:text-stone-900 disabled:opacity-30"
           >
-            <ChevronRight size={14} />
+            <ChevronRight size={13} />
           </button>
           <button
             onClick={() => onSelectPly(-1)}
@@ -184,16 +183,15 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
             title="Current live position"
             className="p-1 rounded hover:bg-stone-100 text-stone-500 hover:text-stone-900 disabled:opacity-30"
           >
-            <ChevronsRight size={14} />
+            <ChevronsRight size={13} />
           </button>
         </div>
       </div>
 
-      {/* Expanded Full Report Modal (Openable on demand) */}
+      {/* Expanded Full Report Modal */}
       {showFullReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
           <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl p-6 text-stone-900">
-            {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-stone-200 shrink-0">
               <div className="flex items-center gap-2">
                 <FileText size={18} className="text-[#739552]" />
@@ -207,11 +205,10 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
               </button>
             </div>
 
-            {/* Game Summary Cards */}
             <div className="grid grid-cols-2 gap-3 py-3 border-b border-stone-100 shrink-0 text-xs">
               <div className="bg-stone-50 p-2.5 rounded-xl border border-stone-200">
-                <span className="text-stone-500 font-semibold block">Total Plies</span>
-                <span className="text-sm font-bold text-stone-900">{moves.length} moves</span>
+                <span className="text-stone-500 font-semibold block">Total Moves</span>
+                <span className="text-sm font-bold text-stone-900">{moves.length} plies</span>
               </div>
               <div className="bg-stone-50 p-2.5 rounded-xl border border-stone-200">
                 <span className="text-stone-500 font-semibold block">Result</span>
@@ -221,7 +218,6 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
               </div>
             </div>
 
-            {/* Full Move List Grid */}
             <div className="flex-1 overflow-y-auto py-3 space-y-1 font-mono text-xs pr-1">
               {pairedMoves.length === 0 ? (
                 <div className="text-center py-10 text-stone-400 italic">No moves recorded yet</div>
@@ -241,7 +237,6 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-3 border-t border-stone-200 flex items-center justify-between shrink-0">
               <button
                 onClick={exportPGN}
