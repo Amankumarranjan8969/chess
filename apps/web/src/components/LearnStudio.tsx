@@ -109,13 +109,13 @@ export const LearnStudio: React.FC = () => {
       </div>
 
       {/* 2. SUB-SECTION TABS */}
-      <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 w-fit shadow-xs">
+      <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 w-fit shadow-xs">
         <button
           onClick={() => setActiveTab('curriculum')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'curriculum'
-              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
-              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              ? 'bg-[#739552] text-white shadow-sm'
+              : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-white dark:hover:bg-stone-700'
           }`}
         >
           <BookOpen size={14} /> Curriculum Path
@@ -124,8 +124,8 @@ export const LearnStudio: React.FC = () => {
           onClick={() => setActiveTab('explorer')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'explorer'
-              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
-              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              ? 'bg-[#739552] text-white shadow-sm'
+              : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-white dark:hover:bg-stone-700'
           }`}
         >
           <Compass size={14} /> Opening Explorer
@@ -134,8 +134,8 @@ export const LearnStudio: React.FC = () => {
           onClick={() => setActiveTab('vision')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'vision'
-              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
-              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              ? 'bg-[#739552] text-white shadow-sm'
+              : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-white dark:hover:bg-stone-700'
           }`}
         >
           <Eye size={14} /> Vision Trainer
@@ -144,8 +144,8 @@ export const LearnStudio: React.FC = () => {
           onClick={() => setActiveTab('insights')}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all ${
             activeTab === 'insights'
-              ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
-              : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+              ? 'bg-[#739552] text-white shadow-sm'
+              : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-white dark:hover:bg-stone-700'
           }`}
         >
           <BrainCircuit size={14} /> Personal Insights

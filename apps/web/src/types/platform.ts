@@ -135,6 +135,13 @@ export interface Puzzle {
   id: string;
   title: string;
   fen: string;
+  preFen?: string;
+  opponentMove?: {
+    from: string;
+    to: string;
+    san: string;
+    piece?: string;
+  };
   sideToMove: Color;
   rating: number;
   theme: string;

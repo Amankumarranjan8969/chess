@@ -57,6 +57,7 @@ interface ChessboardProps {
   interactive: boolean;
   theme?: BoardTheme;
   hintMove?: { from: Square; to: Square } | null;
+  lastMoveOverride?: { from: Square; to: Square } | null;
   onMove?: (from: Square, to: Square, promotion?: PieceSymbol) => void;
 }
 
@@ -67,6 +68,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   interactive,
   theme = 'green',
   hintMove,
+  lastMoveOverride,
   onMove,
 }) => {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -284,8 +286,9 @@ export const Chessboard: React.FC<ChessboardProps> = ({
             const isSelected = selectedSquare === square;
             const isTarget = activeLegalTargets.includes(square);
             const isCheck = checkSquare === square;
-            const isLastMoveFrom = snapshot.lastMove?.from === square;
-            const isLastMoveTo = snapshot.lastMove?.to === square;
+            const activeLastMove = lastMoveOverride || snapshot.lastMove;
+            const isLastMoveFrom = activeLastMove?.from === square;
+            const isLastMoveTo = activeLastMove?.to === square;
             const isRightClickHighlight = highlightedSquares.has(square);
 
             return (

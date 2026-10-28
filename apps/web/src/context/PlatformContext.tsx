@@ -220,7 +220,20 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
   const [puzzles, setPuzzles] = useState<Puzzle[]>(() => {
     const saved = localStorage.getItem('chess_platform_puzzles');
-    return saved ? JSON.parse(saved) : INITIAL_PUZZLES;
+    if (!saved) return INITIAL_PUZZLES;
+    try {
+      const parsed: Puzzle[] = JSON.parse(saved);
+      return parsed.map((p) => {
+        const init = INITIAL_PUZZLES.find((ip) => ip.id === p.id);
+        return {
+          ...p,
+          preFen: p.preFen || init?.preFen,
+          opponentMove: p.opponentMove || init?.opponentMove,
+        };
+      });
+    } catch {
+      return INITIAL_PUZZLES;
+    }
   });
   const [activePuzzleId, setActivePuzzleId] = useState<string | null>(INITIAL_PUZZLES[0].id);
   const [lessons, setLessons] = useState<Lesson[]>(() => {

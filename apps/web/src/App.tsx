@@ -83,6 +83,9 @@ const MainAppContent: React.FC = () => {
   const [copiedShareLink, setCopiedShareLink] = useState<boolean>(false);
   const [lastFinishedGameId, setLastFinishedGameId] = useState<string | null>(null);
 
+  // Active game start status (prevents false "Your turn" when user merely browses the Play tab)
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
+
   // History Review / Ply Navigation (-1 = live game, -2 = start, 0..N = move index)
   const [reviewPly, setReviewPly] = useState<number>(-1);
 
@@ -138,9 +141,9 @@ const MainAppContent: React.FC = () => {
     }
   }, [isOnline, socketHook.playerColor]);
 
-  // Real-time clock tick and automatic timeout flag detector for local play
+  // Real-time clock tick and automatic timeout flag detector for local play (runs ONLY when game is actively started)
   useEffect(() => {
-    if (isOnline || localSnapshot.status !== 'active') return;
+    if (isOnline || !isGameStarted || localSnapshot.status !== 'active') return;
 
     const interval = setInterval(() => {
       const snap = localGameRef.current.getSnapshot();
@@ -157,7 +160,7 @@ const MainAppContent: React.FC = () => {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isOnline, localSnapshot.status]);
+  }, [isOnline, isGameStarted, localSnapshot.status]);
 
   // When game finishes online, record and trigger game over modal
   useEffect(() => {
@@ -310,6 +313,7 @@ const MainAppContent: React.FC = () => {
       setUserColor(chosenColor);
       setDifficulty(chosenDifficulty);
       setOrientation(chosenColor);
+      setIsGameStarted(true);
 
       const newGame = new ChessGame(undefined, { timeControl });
       localGameRef.current = newGame;
@@ -341,6 +345,7 @@ const MainAppContent: React.FC = () => {
 
   // Whose turn is it relative to human player
   const isUserTurn =
+    (isOnline || isGameStarted) &&
     liveSnapshot.status === 'active' &&
     (isOnline
       ? socketHook.playerColor === liveSnapshot.sideToMove
@@ -368,6 +373,7 @@ const MainAppContent: React.FC = () => {
 
   // Local move execution
   const handleLocalMove = (from: Square, to: Square, promotion?: PieceSymbol) => {
+    setIsGameStarted(true);
     setReviewPly(-1);
     setSingleUseHint(null);
     const res = localGameRef.current.makeMove({ from, to, promotion });
@@ -402,6 +408,7 @@ const MainAppContent: React.FC = () => {
   // Trigger AI reply when it's computer's turn in 'computer' mode
   useEffect(() => {
     if (activeSection !== 'play') return;
+    if (!isGameStarted) return;
     if (mode !== 'computer') return;
     if (localSnapshot.status !== 'active') return;
     if (reviewPly !== -1) return;
@@ -418,7 +425,7 @@ const MainAppContent: React.FC = () => {
         }
       });
     }
-  }, [activeSection, mode, localSnapshot, userColor, difficulty, isAIThinking, getAIMove, reviewPly]);
+  }, [activeSection, isGameStarted, mode, localSnapshot, userColor, difficulty, isAIThinking, getAIMove, reviewPly]);
 
   const currentLegalMoves: DetailedMove[] = isOnline
     ? localGameRef.current ? localGameRef.current.getLegalMoves() : []
@@ -666,7 +673,7 @@ const MainAppContent: React.FC = () => {
                     minimal={true}
                     color={topPlayerColor}
                     clockState={liveSnapshot.clocks}
-                    isActive={liveSnapshot.sideToMove === topPlayerColor && liveSnapshot.status === 'active'}
+                    isActive={(isOnline || isGameStarted) && liveSnapshot.sideToMove === topPlayerColor && liveSnapshot.status === 'active'}
                   />
                 </div>
 
@@ -746,7 +753,7 @@ const MainAppContent: React.FC = () => {
                     minimal={true}
                     color={bottomPlayerColor}
                     clockState={liveSnapshot.clocks}
-                    isActive={liveSnapshot.sideToMove === bottomPlayerColor && liveSnapshot.status === 'active'}
+                    isActive={(isOnline || isGameStarted) && liveSnapshot.sideToMove === bottomPlayerColor && liveSnapshot.status === 'active'}
                   />
                 </div>
               </div>
@@ -756,7 +763,25 @@ const MainAppContent: React.FC = () => {
                 {/* Match Status & Opening Header */}
                 <div className="flex flex-col gap-2 shrink-0">
                   {/* Turn Status Alert */}
-                  {liveSnapshot.status === 'active' ? (
+                  {!isGameStarted && !isOnline ? (
+                    <div className="py-2 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between text-xs font-bold shadow-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                        <span className="text-stone-700 dark:text-stone-300">
+                          Game Ready • Make a move or start match
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          startNewLocalGame(userColor, difficulty, { initialMs: 600000, incrementMs: 0 });
+                        }}
+                        className="px-3 py-1 bg-[#739552] hover:bg-[#648346] text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition-all cursor-pointer"
+                      >
+                        <Play size={12} fill="white" />
+                        <span>Start Game</span>
+                      </button>
+                    </div>
+                  ) : liveSnapshot.status === 'active' ? (
                     <div
                       className={`py-2 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all shadow-sm ${
                         isUserTurn

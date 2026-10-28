@@ -1,8 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { ChessGame, Color, PieceSymbol, Square } from '@chess/core';
 import { usePlatform } from '../context/PlatformContext.js';
 import { Puzzle } from '../types/platform.js';
 import { Chessboard, BoardTheme } from './Chessboard.js';
+import { soundManager } from '../audio/soundManager.js';
 import {
   Zap,
   Flame,
@@ -18,6 +19,8 @@ import {
   Sparkles,
   HelpCircle,
   BookOpen,
+  ArrowRight,
+  Play,
 } from 'lucide-react';
 
 export const PuzzlesStudio: React.FC = () => {
@@ -46,10 +49,18 @@ export const PuzzlesStudio: React.FC = () => {
 
   // Game state for active puzzle
   const [puzzleGame, setPuzzleGame] = useState<ChessGame>(
-    () => new ChessGame(activePuzzle.fen)
+    () => new ChessGame(activePuzzle.preFen || activePuzzle.fen)
   );
   const [snapshot, setSnapshot] = useState(() => puzzleGame.getSnapshot());
   const [legalMoves, setLegalMoves] = useState(() => puzzleGame.getLegalMoves());
+
+  // Opponent move animation state
+  const [isOpponentMoving, setIsOpponentMoving] = useState<boolean>(false);
+  const [opponentLastMove, setOpponentLastMove] = useState<{ from: Square; to: Square } | null>(
+    activePuzzle.opponentMove
+      ? { from: activePuzzle.opponentMove.from as Square, to: activePuzzle.opponentMove.to as Square }
+      : null
+  );
 
   // Solution progression
   const [solutionStep, setSolutionStep] = useState<number>(0);
@@ -57,23 +68,90 @@ export const PuzzlesStudio: React.FC = () => {
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
   const [showHint, setShowHint] = useState<boolean>(false);
   const [showSolution, setShowSolution] = useState<boolean>(false);
+  const opponentTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Initialize and animate puzzle: displays opponent's preceding move before giving user the turn
+  const loadPuzzle = (p: Puzzle, animateOpponentMove: boolean = true) => {
+    if (opponentTimerRef.current) {
+      clearTimeout(opponentTimerRef.current);
+      opponentTimerRef.current = null;
+    }
+
+    setSolutionStep(0);
+    setStatus('solving');
+    setShowHint(false);
+    setShowSolution(false);
+
+    if (animateOpponentMove && p.preFen && p.opponentMove) {
+      // 1. Initialize at the position immediately before opponent blunder/move
+      const preGame = new ChessGame(p.preFen);
+      setPuzzleGame(preGame);
+      setSnapshot(preGame.getSnapshot());
+      setLegalMoves([]);
+      setIsOpponentMoving(true);
+      setOpponentLastMove(null);
+      setFeedbackMsg(`Opponent is playing ${p.opponentMove.san || 'their move'}...`);
+
+      // 2. Play the opponent's move with realistic delay
+      opponentTimerRef.current = setTimeout(() => {
+        const res = preGame.makeMove({
+          from: p.opponentMove!.from as Square,
+          to: p.opponentMove!.to as Square,
+        });
+
+        if (res.success) {
+          if (res.move?.captured) {
+            soundManager.playCapture();
+          } else {
+            soundManager.playMove();
+          }
+        }
+
+        const afterSnap = preGame.getSnapshot();
+        setSnapshot(afterSnap);
+        setLegalMoves(preGame.getLegalMoves());
+        setIsOpponentMoving(false);
+        setOpponentLastMove({
+          from: p.opponentMove!.from as Square,
+          to: p.opponentMove!.to as Square,
+        });
+        setFeedbackMsg(
+          `Opponent played ${p.opponentMove!.san}. Your turn — find the winning move!`
+        );
+      }, 500);
+    } else {
+      // Direct load if no preFen or animation skipped
+      const directGame = new ChessGame(p.fen);
+      setPuzzleGame(directGame);
+      setSnapshot(directGame.getSnapshot());
+      setLegalMoves(directGame.getLegalMoves());
+      setIsOpponentMoving(false);
+      if (p.opponentMove) {
+        setOpponentLastMove({
+          from: p.opponentMove.from as Square,
+          to: p.opponentMove.to as Square,
+        });
+        setFeedbackMsg(`Opponent played ${p.opponentMove.san}. Find the winning move!`);
+      } else {
+        setOpponentLastMove(null);
+        setFeedbackMsg(null);
+      }
+    }
+  };
 
   // Reset board when active puzzle changes
   useEffect(() => {
-    const newGame = new ChessGame(activePuzzle.fen);
-    setPuzzleGame(newGame);
-    setSnapshot(newGame.getSnapshot());
-    setLegalMoves(newGame.getLegalMoves());
-    setSolutionStep(0);
-    setStatus('solving');
-    setFeedbackMsg(null);
-    setShowHint(false);
-    setShowSolution(false);
+    loadPuzzle(activePuzzle, true);
+    return () => {
+      if (opponentTimerRef.current) {
+        clearTimeout(opponentTimerRef.current);
+      }
+    };
   }, [activePuzzle]);
 
   // Handle player move on puzzle board
   const handlePuzzleMove = (from: Square, to: Square, promotion?: PieceSymbol) => {
-    if (status === 'solved') return;
+    if (status === 'solved' || isOpponentMoving) return;
 
     const expectedMove = activePuzzle.solutionMoves[solutionStep];
     if (!expectedMove) return;
@@ -88,9 +166,18 @@ export const PuzzlesStudio: React.FC = () => {
       const res = puzzleGame.makeMove({ from, to, promotion });
       if (!res.success) return;
 
+      if (res.move?.isCheckmate) {
+        soundManager.playGameOver();
+      } else if (res.move?.captured) {
+        soundManager.playCapture();
+      } else {
+        soundManager.playMove();
+      }
+
       const newSnap = puzzleGame.getSnapshot();
       setSnapshot(newSnap);
       setLegalMoves(puzzleGame.getLegalMoves());
+      setOpponentLastMove({ from, to });
 
       const nextStep = solutionStep + 1;
 
@@ -103,6 +190,7 @@ export const PuzzlesStudio: React.FC = () => {
         // If there is an opponent reply move in the puzzle
         setSolutionStep(nextStep);
         setFeedbackMsg('Great move! Watch the opponent’s reply...');
+        setIsOpponentMoving(true);
 
         setTimeout(() => {
           const opponentMove = activePuzzle.solutionMoves[nextStep];
@@ -112,9 +200,15 @@ export const PuzzlesStudio: React.FC = () => {
               to: opponentMove.to as Square,
               promotion: opponentMove.promotion as PieceSymbol | undefined,
             });
+            soundManager.playMove();
             setSnapshot(puzzleGame.getSnapshot());
             setLegalMoves(puzzleGame.getLegalMoves());
+            setOpponentLastMove({
+              from: opponentMove.from as Square,
+              to: opponentMove.to as Square,
+            });
             setSolutionStep(nextStep + 1);
+            setIsOpponentMoving(false);
             setFeedbackMsg('Now find the winning follow-up!');
           }
         }, 600);
@@ -128,15 +222,11 @@ export const PuzzlesStudio: React.FC = () => {
   };
 
   const handleRetry = () => {
-    const newGame = new ChessGame(activePuzzle.fen);
-    setPuzzleGame(newGame);
-    setSnapshot(newGame.getSnapshot());
-    setLegalMoves(newGame.getLegalMoves());
-    setSolutionStep(0);
-    setStatus('solving');
-    setFeedbackMsg(null);
-    setShowHint(false);
-    setShowSolution(false);
+    loadPuzzle(activePuzzle, true);
+  };
+
+  const handleReplayOpponentMove = () => {
+    loadPuzzle(activePuzzle, true);
   };
 
   const handleNextPuzzle = () => {
@@ -151,42 +241,49 @@ export const PuzzlesStudio: React.FC = () => {
 
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
-      {/* Top Banner: Stats & Streaks */}
-      <div className="bg-white dark:bg-gradient-to-r dark:from-stone-900 dark:via-stone-800 dark:to-stone-900 text-stone-900 dark:text-white rounded-3xl p-5 shadow-sm border border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md shadow-purple-900/30">
-            ⚡
+      {/* 1. TOP HEADER BANNER: TACTICAL METRICS & STREAK */}
+      <div className="bg-white dark:bg-stone-900 text-stone-900 dark:text-white rounded-3xl p-5 sm:p-6 shadow-sm border border-stone-200 dark:border-stone-800 flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-purple-900/40">
+            🧩
           </div>
           <div>
-            <h1 className="font-extrabold text-lg sm:text-xl tracking-tight flex items-center gap-2">
-              Tactical Puzzles Arena
+            <h1 className="font-extrabold text-xl sm:text-2xl tracking-tight">
+              Tactical Puzzles Studio
             </h1>
-            <p className="text-xs text-stone-600 dark:text-stone-400">
-              Pattern recognition, mate nets, forks, pins, and master tactical calculations
+            <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5 max-w-md font-medium">
+              Sharpen your tactical vision with verified puzzles calibrated by Elo rating and strategic theme.
             </p>
           </div>
         </div>
 
-        {/* Puzzle Rating Pill */}
+        {/* 3 Unified Stats Pills */}
         <div className="flex items-center gap-3">
-          <div className="bg-white dark:bg-stone-800/80 border border-stone-200 dark:border-stone-700 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-xs">
-            <div>
-              <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider">
-                Puzzle Rating
-              </span>
-              <div className="text-xl font-mono font-extrabold text-purple-600 dark:text-purple-400">
-                {pStats.rating}
-              </div>
-            </div>
-            <div className="w-px h-8 bg-stone-200 dark:bg-stone-700" />
-            <div>
-              <span className="text-[10px] text-stone-500 dark:text-stone-400 uppercase font-bold tracking-wider flex items-center gap-1">
-                <Flame size={12} className="text-amber-500" /> Streak
-              </span>
-              <div className="text-xl font-mono font-extrabold text-amber-500 dark:text-amber-400">
-                {pStats.streak}
-              </div>
-            </div>
+          <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl p-3 flex flex-col items-center min-w-[90px] shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400">
+              Puzzle Rating
+            </span>
+            <span className="text-xl font-mono font-extrabold text-purple-600 dark:text-purple-400">
+              {pStats.rating}
+            </span>
+          </div>
+
+          <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl p-3 flex flex-col items-center min-w-[90px] shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 flex items-center gap-1">
+              <Flame size={12} className="text-amber-500" /> Streak
+            </span>
+            <span className="text-xl font-mono font-extrabold text-amber-600 dark:text-amber-400">
+              {pStats.streak}
+            </span>
+          </div>
+
+          <div className="bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl p-3 flex flex-col items-center min-w-[90px] shadow-xs">
+            <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400">
+              Solved
+            </span>
+            <span className="text-xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
+              {pStats.solvedCount}
+            </span>
           </div>
         </div>
       </div>
@@ -195,9 +292,9 @@ export const PuzzlesStudio: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
         {/* Left: The Chessboard and Interactive Controls */}
         <div className="flex flex-col items-center justify-center gap-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-5 sm:p-6 shadow-sm">
-          {/* Turn Objective Banner */}
-          <div className="w-full flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
-            <div className="flex items-center gap-2">
+          {/* Turn Objective & Opponent Move Display Banner */}
+          <div className="w-full flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3 flex-wrap gap-2">
+            <div className="flex items-center gap-2.5">
               <span
                 className={`w-3.5 h-3.5 rounded-full border shadow-sm ${
                   activePuzzle.sideToMove === 'w'
@@ -208,6 +305,32 @@ export const PuzzlesStudio: React.FC = () => {
               <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                 {activePuzzle.sideToMove === 'w' ? 'White' : 'Black'} to Move and Win
               </span>
+
+              {/* Explicit Opponent Last Move Tag */}
+              {activePuzzle.opponentMove && (
+                <div className="flex items-center gap-1.5 ml-1">
+                  <span
+                    className={`px-2.5 py-0.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs border ${
+                      isOpponentMoving
+                        ? 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800 animate-pulse'
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800'
+                    }`}
+                  >
+                    <ArrowRight size={12} className="text-[#739552]" />
+                    <span>
+                      Opponent played: <strong>{activePuzzle.opponentMove.san}</strong>
+                    </span>
+                  </span>
+
+                  <button
+                    onClick={handleReplayOpponentMove}
+                    title="Replay Opponent Move Animation"
+                    className="p-1 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-300 transition-colors"
+                  >
+                    <RotateCcw size={11} />
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -220,16 +343,24 @@ export const PuzzlesStudio: React.FC = () => {
             </div>
           </div>
 
-          {/* Interactive Chessboard */}
-          <div className="w-[min(540px,calc(100vh-280px))] h-[min(540px,calc(100vh-280px))] aspect-square flex items-center justify-center shrink-0">
+          {/* Interactive Chessboard with Explicit Opponent Last Move Highlighting */}
+          <div className="w-[min(540px,calc(100vh-280px))] h-[min(540px,calc(100vh-280px))] aspect-square flex items-center justify-center shrink-0 relative">
             <Chessboard
               snapshot={snapshot}
               legalMoves={legalMoves}
               orientation={activePuzzle.sideToMove}
               theme={(preferences.boardTheme as BoardTheme) || 'green'}
-              interactive={status !== 'solved'}
+              interactive={status !== 'solved' && !isOpponentMoving}
+              lastMoveOverride={opponentLastMove}
               onMove={handlePuzzleMove}
             />
+
+            {isOpponentMoving && (
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-stone-900/90 text-white text-xs font-bold px-3 py-1 rounded-xl shadow-lg backdrop-blur-xs flex items-center gap-2 pointer-events-none animate-in fade-in">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span>Opponent is making their move...</span>
+              </div>
+            )}
           </div>
 
           {/* Feedback & Result Message */}

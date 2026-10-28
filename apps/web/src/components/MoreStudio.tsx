@@ -101,7 +101,7 @@ export const MoreStudio: React.FC = () => {
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
       {/* Navigation Sub-Tabs */}
-      <div className="flex items-center gap-1.5 bg-white dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 overflow-x-auto scrollbar-none w-full sm:w-fit shadow-xs">
+      <div className="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 p-1 rounded-2xl text-xs font-bold border border-stone-200 dark:border-stone-700 overflow-x-auto scrollbar-none w-full sm:w-fit shadow-xs">
         {[
           { id: 'profile', label: 'Profile & Stats', icon: <User size={14} /> },
           { id: 'messages', label: 'Messages', icon: <MessageSquare size={14} /> },
@@ -115,8 +115,8 @@ export const MoreStudio: React.FC = () => {
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-stone-100 shadow-xs border border-stone-200 dark:border-transparent'
-                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                ? 'bg-[#739552] text-white shadow-sm'
+                : 'text-stone-700 dark:text-stone-300 hover:text-stone-950 dark:hover:text-white hover:bg-white dark:hover:bg-stone-700'
             }`}
           >
             {tab.icon}

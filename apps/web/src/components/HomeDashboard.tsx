@@ -414,7 +414,10 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
           </button>
 
           {/* Card 4: vs Computer with In-Card Difficulty Selector */}
-          <div className="p-4 min-h-[195px] rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-rose-500 dark:hover:border-rose-500 shadow-sm hover:shadow-md transition-all text-left flex flex-col justify-between group">
+          <div
+            onClick={() => onStartComputerGame('5+3', 'w', selectedDifficulty)}
+            className="p-4 min-h-[195px] rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-rose-500 dark:hover:border-rose-500 shadow-sm hover:shadow-md transition-all text-left flex flex-col justify-between group cursor-pointer"
+          >
             <div>
               <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
                 <span className="font-extrabold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
@@ -422,8 +425,12 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 </span>
                 <select
                   value={selectedDifficulty}
-                  onChange={(e) => setSelectedDifficulty(e.target.value as AIDifficulty)}
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 focus:outline-none shadow-xs"
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setSelectedDifficulty(e.target.value as AIDifficulty);
+                  }}
+                  className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 focus:outline-none shadow-xs cursor-pointer"
                   title="Select AI Difficulty"
                 >
                   <option value="easy">Easy (1000)</option>
@@ -436,13 +443,10 @@ export const HomeDashboard: React.FC<HomeDashboardProps> = ({
                 Calibrated engine with Quiescence search and tactical evaluation. Test your opening prep and endgame skills.
               </p>
             </div>
-            <button
-              onClick={() => onStartComputerGame('5+3', 'w', selectedDifficulty)}
-              className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400 group-hover:translate-x-1 transition-transform w-full text-left"
-            >
+            <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs font-bold text-rose-600 dark:text-rose-400 group-hover:translate-x-1 transition-transform w-full text-left">
               <span>Challenge AI ({selectedDifficulty})</span>
               <ChevronRight size={15} />
-            </button>
+            </div>
           </div>
         </div>
       </div>
