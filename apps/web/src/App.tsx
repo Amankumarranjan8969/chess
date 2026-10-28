@@ -495,10 +495,19 @@ const MainAppContent: React.FC = () => {
       <main className="flex-1 flex flex-col pb-16 md:pb-6">
         {activeSection === 'home' && (
           <HomeDashboard
-            onStartComputerGame={(tc, color) => {
+            onStartComputerGame={(tc, color, diff) => {
               setMode('computer');
               navigateTo('play');
-              startNewLocalGame(color, 'grandmaster', { initialMs: 300000, incrementMs: 3000 });
+              const timeControlMap: Record<string, { initialMs: number; incrementMs: number }> = {
+                '1+0': { initialMs: 60000, incrementMs: 0 },
+                '3+2': { initialMs: 180000, incrementMs: 2000 },
+                '5+0': { initialMs: 300000, incrementMs: 0 },
+                '5+3': { initialMs: 300000, incrementMs: 3000 },
+                '10+0': { initialMs: 600000, incrementMs: 0 },
+                '15+10': { initialMs: 900000, incrementMs: 10000 },
+              };
+              const config = timeControlMap[tc] || { initialMs: 600000, incrementMs: 0 };
+              startNewLocalGame(color, diff || 'grandmaster', config);
             }}
             onOpenWifiModal={() => {
               setMode('online');
@@ -602,143 +611,162 @@ const MainAppContent: React.FC = () => {
               </div>
             </div>
 
-            {/* Symmetrical 3-Column Layout: DEAD CENTER 670px Chessboard */}
-            <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] items-center gap-4 sm:gap-6">
-              {/* Column 1 (Left): Symmetrical Balancer */}
-              <div className="hidden xl:flex justify-end items-center pr-2">
-                <div className="w-[350px] flex flex-col gap-3">
-                  {isOnline && socketHook.roomState?.roomId ? (
-                    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
-                      <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <span className="font-bold text-stone-800 dark:text-stone-200 text-xs flex items-center gap-1.5">
-                          <Wifi size={14} className="text-[#739552]" /> Local Wi-Fi Match
-                        </span>
-                        <span className="font-mono font-bold px-2 py-0.5 bg-[#739552]/10 border border-[#739552]/20 text-[#5f7d41] rounded-md text-xs">
-                          {socketHook.roomState.roomId}
-                        </span>
+            {/* Centered Tournament Chess Stage & Integrated Game Panel */}
+            <div className="w-full max-w-[1240px] mx-auto flex flex-col lg:flex-row items-center lg:items-start justify-center gap-4 lg:gap-6 py-1">
+              {/* STAGE 1: Chessboard with Direct Opponent & Player Attached Bars */}
+              <div className="w-full max-w-[min(640px,calc(100vh-175px))] flex flex-col gap-2 shrink-0">
+                {/* Opponent Bar (Directly Above Board) */}
+                <div className="flex items-center justify-between px-3 py-2 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative">
+                      <div className="w-9 h-9 rounded-xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-lg font-bold border border-stone-200 dark:border-stone-700 shadow-sm">
+                        {mode === 'computer' ? '🤖' : isOnline ? '👤' : '♟️'}
                       </div>
-                      <p className="text-[11px] text-stone-500">
-                        Share this link with a friend on your Wi-Fi network to play across devices in real time:
-                      </p>
-                      <button
-                        onClick={handleCopyShareLink}
-                        className="w-full py-2.5 px-3 bg-[#739552] hover:bg-[#648346] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
-                      >
-                        {copiedShareLink ? <Check size={14} /> : <Share2 size={14} />}
-                        <span>{copiedShareLink ? 'Link Copied to Clipboard!' : 'Copy Wi-Fi Invite Link'}</span>
-                      </button>
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-stone-900 ${
+                          topPlayerColor === 'w' ? 'bg-white' : 'bg-stone-900'
+                        }`}
+                      />
                     </div>
-                  ) : mode === 'computer' ? (
-                    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
-                      <div className="flex items-center justify-between pb-2 border-b border-stone-100 dark:border-stone-800">
-                        <span className="font-bold text-stone-800 dark:text-stone-200 text-xs flex items-center gap-1.5">
-                          <Bot size={14} className="text-[#739552]" /> Engine Opponent
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs text-stone-900 dark:text-stone-100 truncate max-w-[130px]">
+                          {isOnline
+                            ? socketHook.roomState?.blackPlayer?.name || 'Wi-Fi Opponent'
+                            : mode === 'computer'
+                            ? `Computer`
+                            : 'Player 2'}
                         </span>
-                        <span
-                          className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1 ${
-                            difficulty === 'grandmaster'
-                              ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                              : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
-                          }`}
-                        >
-                          {difficulty === 'grandmaster' && <Flame size={11} className="text-amber-600" />}
-                          {difficulty}
-                        </span>
+                        {mode === 'computer' && (
+                          <span
+                            className={`text-[9px] font-extrabold uppercase px-1.5 py-0.2 rounded ${
+                              difficulty === 'grandmaster'
+                                ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                : difficulty === 'hard'
+                                ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                            }`}
+                          >
+                            {difficulty === 'grandmaster' ? 'Expert 2400+' : difficulty === 'hard' ? 'Hard 1950' : 'Medium 1500'}
+                          </span>
+                        )}
                       </div>
-                      <div className="text-[11px] text-stone-500 flex flex-col gap-1">
-                        <div className="flex justify-between">
-                          <span>Elo Rating:</span>
-                          <strong className="text-stone-800 dark:text-stone-200 font-bold">
-                            {difficulty === 'grandmaster' ? 'Super Hard (2400+)' : difficulty === 'hard' ? 'Hard (1950)' : 'Medium (1500)'}
-                          </strong>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Search Engine:</span>
-                          <strong className="text-stone-800 dark:text-stone-200 font-bold">
-                            Quiescence Search
-                          </strong>
-                        </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <CapturedPieces
+                          captured={topPlayerColor === 'w' ? whiteCaptured : blackCaptured}
+                          color={topPlayerColor === 'w' ? 'b' : 'w'}
+                          advantage={topPlayerColor === 'w' ? whiteAdvantage : blackAdvantage}
+                        />
                       </div>
-                      <button
-                        onClick={() => setShowNewGameModal(true)}
-                        className="mt-1 py-1.5 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 text-stone-800 dark:text-stone-200 font-bold text-xs rounded-xl transition-all"
-                      >
-                        Change Engine Difficulty
-                      </button>
                     </div>
-                  ) : null}
-                </div>
-              </div>
+                  </div>
 
-              {/* Column 2 (Center): EXPANDED 670px CHESSBOARD */}
-              <div className="flex items-center justify-center gap-3 justify-self-center shrink-0">
-                <div className="h-[min(670px,calc(100vh-160px))] flex items-center">
-                  <EvaluationBar
-                    scoreCentipawns={evalScore}
-                    isCheckmate={currentSnapshot.isCheckmate}
-                    orientation={orientation}
-                  />
-                </div>
-
-                <div className="w-[min(670px,calc(100vh-160px))] h-[min(670px,calc(100vh-160px))] aspect-square flex items-center justify-center">
-                  <Chessboard
-                    snapshot={currentSnapshot}
-                    legalMoves={currentLegalMoves}
-                    orientation={orientation}
-                    theme={(preferences.boardTheme as BoardTheme) || 'green'}
-                    hintMove={singleUseHint}
-                    interactive={
-                      reviewPly === -1 &&
-                      currentSnapshot.status === 'active' &&
-                      (!isOnline ||
-                        socketHook.playerColor === currentSnapshot.sideToMove ||
-                        socketHook.playerColor === 'spectator') &&
-                      (!isAIThinking)
-                    }
-                    onMove={handleMove}
-                  />
-                </div>
-              </div>
-
-              {/* Column 3 (Right): Symmetrical Panel */}
-              <div className="w-full xl:w-[350px] max-w-[350px] mx-auto xl:mx-0 flex flex-col justify-between h-[min(670px,calc(100vh-160px))] max-h-[min(670px,calc(100vh-160px))] overflow-hidden justify-self-center xl:justify-self-start shrink-0">
-                {/* Top Clock */}
-                <div className="shrink-0 flex flex-col gap-1">
+                  {/* Opponent Clock (Directly Top-Right) */}
                   <ClockDisplay
+                    minimal={true}
                     color={topPlayerColor}
-                    playerName={
-                      isOnline
-                        ? socketHook.roomState?.blackPlayer?.name || 'Waiting for Wi-Fi opponent...'
-                        : mode === 'computer'
-                        ? `Computer (${difficulty.toUpperCase()})`
-                        : 'Player 2 (Black)'
-                    }
                     clockState={liveSnapshot.clocks}
                     isActive={liveSnapshot.sideToMove === topPlayerColor && liveSnapshot.status === 'active'}
                   />
-                  <div className="px-1">
-                    <CapturedPieces
-                      captured={topPlayerColor === 'w' ? whiteCaptured : blackCaptured}
-                      color={topPlayerColor === 'w' ? 'b' : 'w'}
-                      advantage={topPlayerColor === 'w' ? whiteAdvantage : blackAdvantage}
+                </div>
+
+                {/* Center Chessboard Stage with Vertical Evaluation Bar */}
+                <div className="flex items-center justify-center gap-2.5 w-full">
+                  <div className="h-[min(570px,calc(100vh-255px))] flex items-center">
+                    <EvaluationBar
+                      scoreCentipawns={evalScore}
+                      isCheckmate={currentSnapshot.isCheckmate}
+                      orientation={orientation}
+                    />
+                  </div>
+
+                  <div className="w-[min(570px,calc(100vh-255px))] h-[min(570px,calc(100vh-255px))] aspect-square flex items-center justify-center">
+                    <Chessboard
+                      snapshot={currentSnapshot}
+                      legalMoves={currentLegalMoves}
+                      orientation={orientation}
+                      theme={(preferences.boardTheme as BoardTheme) || 'green'}
+                      hintMove={singleUseHint}
+                      interactive={
+                        reviewPly === -1 &&
+                        currentSnapshot.status === 'active' &&
+                        (!isOnline ||
+                          socketHook.playerColor === currentSnapshot.sideToMove ||
+                          socketHook.playerColor === 'spectator') &&
+                        (!isAIThinking)
+                      }
+                      onMove={handleMove}
                     />
                   </div>
                 </div>
 
-                {/* Middle: Turn, Opening, Move History, Actions */}
-                <div className="flex-1 flex flex-col gap-2 my-auto overflow-hidden justify-center">
-                  {/* Turn Status */}
+                {/* Player Bar (Directly Below Board) */}
+                <div className="flex items-center justify-between px-3 py-2 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm">
+                  <div className="flex items-center gap-2.5">
+                    <div className="relative">
+                      <img
+                        src={user.avatar}
+                        alt={user.username}
+                        className="w-9 h-9 rounded-xl object-cover ring-2 ring-[#739552]/40"
+                      />
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-stone-900 ${
+                          bottomPlayerColor === 'w' ? 'bg-white' : 'bg-stone-900'
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        {user.title && (
+                          <span className="text-[9px] font-extrabold px-1 py-0.2 bg-amber-500 text-white rounded">
+                            {user.title}
+                          </span>
+                        )}
+                        <span className="font-bold text-xs text-stone-900 dark:text-stone-100">
+                          {isOnline
+                            ? socketHook.roomState?.whitePlayer?.name || user.username
+                            : user.username}
+                        </span>
+                        <span className="text-[10px] font-mono text-stone-500 font-bold">
+                          ({user.ratings.rapid.rating})
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <CapturedPieces
+                          captured={bottomPlayerColor === 'w' ? whiteCaptured : blackCaptured}
+                          color={bottomPlayerColor === 'w' ? 'b' : 'w'}
+                          advantage={bottomPlayerColor === 'w' ? whiteAdvantage : blackAdvantage}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Player Clock (Directly Bottom-Right) */}
+                  <ClockDisplay
+                    minimal={true}
+                    color={bottomPlayerColor}
+                    clockState={liveSnapshot.clocks}
+                    isActive={liveSnapshot.sideToMove === bottomPlayerColor && liveSnapshot.status === 'active'}
+                  />
+                </div>
+              </div>
+
+              {/* STAGE 2: Game Info & Move History Panel (Right Side) */}
+              <div className="w-full lg:w-[380px] xl:w-[410px] flex flex-col justify-between h-[min(640px,calc(100vh-175px))] max-h-[min(640px,calc(100vh-175px))] overflow-hidden gap-2.5 shrink-0">
+                {/* Match Status & Opening Header */}
+                <div className="flex flex-col gap-2 shrink-0">
+                  {/* Turn Status Alert */}
                   {liveSnapshot.status === 'active' ? (
                     <div
-                      className={`py-1.5 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all shadow-sm shrink-0 ${
+                      className={`py-2 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all shadow-sm ${
                         isUserTurn
-                          ? 'bg-[#f0fdf4] border-[#86efac] text-[#15803d]'
-                          : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-500'
+                          ? 'bg-[#f0fdf4] dark:bg-emerald-950/40 border-[#86efac] dark:border-emerald-800 text-[#15803d] dark:text-emerald-300'
+                          : 'bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-300'
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-2 h-2 rounded-full ${
+                          className={`w-2.5 h-2.5 rounded-full ${
                             isUserTurn ? 'bg-[#22c55e] animate-ping' : 'bg-amber-400'
                           }`}
                         />
@@ -751,17 +779,17 @@ const MainAppContent: React.FC = () => {
                         </span>
                       </div>
                       {liveSnapshot.isCheck && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 font-extrabold uppercase tracking-wider text-[9px] border border-rose-200 shrink-0">
+                        <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-extrabold uppercase tracking-wider text-[10px] border border-rose-200 dark:border-rose-800 shrink-0">
                           Check!
                         </span>
                       )}
                     </div>
                   ) : (
-                    <div className="py-1.5 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs flex items-center justify-between shadow-sm shrink-0">
-                      <span>Result: {liveSnapshot.result}</span>
+                    <div className="py-2 px-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 font-bold text-xs flex items-center justify-between shadow-sm">
+                      <span>Result: {liveSnapshot.result} ({liveSnapshot.endReason})</span>
                       <button
                         onClick={() => setShowGameOverModal(true)}
-                        className="underline hover:text-black font-semibold text-[11px]"
+                        className="underline hover:text-black dark:hover:text-white font-semibold text-[11px]"
                       >
                         Details
                       </button>
@@ -770,10 +798,10 @@ const MainAppContent: React.FC = () => {
 
                   {/* Opening Banner */}
                   {openingInfo && (
-                    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-2.5 py-1.5 shadow-sm flex items-center gap-2 shrink-0">
-                      <BookOpen size={13} className="text-[#739552] shrink-0" />
+                    <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl px-3 py-1.5 shadow-sm flex items-center gap-2">
+                      <BookOpen size={14} className="text-[#739552] shrink-0" />
                       <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
-                        <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+                        <span className="text-[10px] uppercase font-mono font-bold text-stone-400 tracking-wider">
                           {openingInfo.eco}
                         </span>
                         <span className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate">
@@ -782,80 +810,63 @@ const MainAppContent: React.FC = () => {
                       </div>
                     </div>
                   )}
-
-                  {/* Move History */}
-                  <div className="shrink-0">
-                    <MoveHistory
-                      moves={liveSnapshot.moveHistory}
-                      snapshot={liveSnapshot}
-                      currentPlyIndex={reviewPly}
-                      onSelectPly={(plyIndex) => setReviewPly(plyIndex)}
-                      className="h-[210px] max-h-[210px]"
-                    />
-                  </div>
-
-                  {/* Action Bar */}
-                  <div className="flex items-center justify-between gap-1 shrink-0 pt-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={flipBoard}
-                        className="px-2 py-1 rounded-xl bg-white dark:bg-stone-900 hover:bg-stone-50 border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-colors flex items-center gap-1 shadow-sm"
-                      >
-                        <RotateCcw size={12} /> Flip
-                      </button>
-
-                      {!isOnline && (
-                        <button
-                          onClick={() => setShowNewGameModal(true)}
-                          className="px-2.5 py-1 rounded-xl bg-[#739552] hover:bg-[#648346] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1"
-                        >
-                          <Play size={11} fill="white" /> New
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      {liveSnapshot.canClaimThreefold && (
-                        <button
-                          onClick={() => handleClaimDraw('threefold')}
-                          className="px-2 py-1 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold shadow-sm"
-                        >
-                          3-Fold
-                        </button>
-                      )}
-                      {liveSnapshot.status === 'active' && (
-                        <button
-                          onClick={handleResign}
-                          className="px-2 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm"
-                        >
-                          <Flag size={12} /> Resign
-                        </button>
-                      )}
-                    </div>
-                  </div>
                 </div>
 
-                {/* Bottom Clock */}
-                <div className="shrink-0 flex flex-col gap-1">
-                  <div className="px-1">
-                    <CapturedPieces
-                      captured={bottomPlayerColor === 'w' ? whiteCaptured : blackCaptured}
-                      color={bottomPlayerColor === 'w' ? 'b' : 'w'}
-                      advantage={bottomPlayerColor === 'w' ? whiteAdvantage : blackAdvantage}
-                    />
-                  </div>
-                  <ClockDisplay
-                    color={bottomPlayerColor}
-                    playerName={
-                      isOnline
-                        ? socketHook.roomState?.whitePlayer?.name || user.username
-                        : mode === 'computer'
-                        ? 'You'
-                        : 'Player 1 (White)'
-                    }
-                    clockState={liveSnapshot.clocks}
-                    isActive={liveSnapshot.sideToMove === bottomPlayerColor && liveSnapshot.status === 'active'}
+                {/* Move History Table (Takes Available Height) */}
+                <div className="flex-1 min-h-[220px] max-h-[340px] overflow-hidden">
+                  <MoveHistory
+                    moves={liveSnapshot.moveHistory}
+                    snapshot={liveSnapshot}
+                    currentPlyIndex={reviewPly}
+                    onSelectPly={(plyIndex) => setReviewPly(plyIndex)}
+                    className="h-full max-h-full"
                   />
+                </div>
+
+                {/* Bottom Action Controls Bar */}
+                <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-2.5 shadow-sm flex items-center justify-between gap-1.5 shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={flipBoard}
+                      title="Flip board orientation"
+                      className="px-2.5 py-1.5 rounded-xl bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-colors flex items-center gap-1"
+                    >
+                      <RotateCcw size={13} />
+                      <span>Flip</span>
+                    </button>
+
+                    {!isOnline && (
+                      <button
+                        onClick={() => setShowNewGameModal(true)}
+                        className="px-3 py-1.5 rounded-xl bg-[#739552] hover:bg-[#648346] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                      >
+                        <Play size={12} fill="white" />
+                        <span>New Game</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    {liveSnapshot.canClaimThreefold && (
+                      <button
+                        onClick={() => handleClaimDraw('threefold')}
+                        className="px-2.5 py-1.5 rounded-xl bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 text-xs font-bold shadow-sm"
+                      >
+                        3-Fold Draw
+                      </button>
+                    )}
+
+                    {liveSnapshot.status === 'active' && (
+                      <button
+                        onClick={handleResign}
+                        className="px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 dark:hover:bg-rose-900 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm"
+                        title="Resign current game"
+                      >
+                        <Flag size={13} />
+                        <span>Resign</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

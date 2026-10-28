@@ -272,7 +272,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
   return (
     <div
       onContextMenu={(e) => e.preventDefault()}
-      className="relative aspect-square w-full max-w-[590px] rounded-xl shadow-2xl overflow-hidden border border-[#33302a] select-none"
+      className="relative aspect-square w-full h-full max-w-full rounded-2xl shadow-2xl overflow-hidden border-2 border-stone-800/80 dark:border-stone-700/80 select-none"
     >
       {/* 8x8 Board Grid */}
       <div className="grid grid-cols-8 grid-rows-8 w-full h-full">
