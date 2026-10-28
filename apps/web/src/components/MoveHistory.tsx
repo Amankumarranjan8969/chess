@@ -16,6 +16,7 @@ interface MoveHistoryProps {
   snapshot: GameSnapshot;
   currentPlyIndex: number;
   onSelectPly: (plyIndex: number) => void;
+  className?: string;
 }
 
 export const MoveHistory: React.FC<MoveHistoryProps> = ({
@@ -23,6 +24,7 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
   snapshot,
   currentPlyIndex,
   onSelectPly,
+  className = 'h-[220px] max-h-[220px]',
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showFullReportModal, setShowFullReportModal] = useState<boolean>(false);
@@ -66,7 +68,9 @@ export const MoveHistory: React.FC<MoveHistoryProps> = ({
   return (
     <>
       {/* Compact Locked-Height Move Register (Strictly Non-Extending) */}
-      <div className="bg-white border border-stone-200 rounded-xl p-2.5 flex flex-col h-[170px] max-h-[170px] overflow-hidden shadow-sm shrink-0">
+      <div
+        className={`bg-white border border-stone-200 rounded-xl p-2.5 flex flex-col overflow-hidden shadow-sm shrink-0 ${className}`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-1.5 border-b border-stone-200 shrink-0">
           <div className="flex items-center gap-1.5">

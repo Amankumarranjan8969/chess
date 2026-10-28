@@ -3,7 +3,11 @@ import { io, Socket } from 'socket.io-client';
 import { Color, MoveInput, TimeControl } from '@chess/core';
 import { soundManager } from '../audio/soundManager.js';
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:4000';
+const SERVER_URL =
+  import.meta.env.VITE_SERVER_URL ||
+  (typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:4000`
+    : 'http://localhost:4000');
 
 export function useChessSocket() {
   const socketRef = useRef<Socket | null>(null);

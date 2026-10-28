@@ -19,6 +19,7 @@ import { EvaluationBar } from './components/EvaluationBar.js';
 import { CapturedPieces } from './components/CapturedPieces.js';
 import { GameOverModal } from './components/GameOverModal.js';
 import { NewGameModal } from './components/NewGameModal.js';
+import { OnlineLobbyModal } from './components/OnlineLobbyModal.js';
 import { useChessAI, AIDifficulty } from './hooks/useChessAI.js';
 import { useChessSocket } from './hooks/useChessSocket.js';
 import { soundManager } from './audio/soundManager.js';
@@ -27,7 +28,6 @@ import {
   VolumeX,
   RotateCcw,
   Flag,
-  Handshake,
   Bot,
   Users,
   Globe,
@@ -37,13 +37,16 @@ import {
   Maximize2,
   Minimize2,
   Play,
+  Wifi,
+  Flame,
+  Check,
 } from 'lucide-react';
 
 type GameMode = 'computer' | 'local' | 'online';
 
 export const App: React.FC = () => {
   const [mode, setMode] = useState<GameMode>('computer');
-  const [difficulty, setDifficulty] = useState<AIDifficulty>('medium');
+  const [difficulty, setDifficulty] = useState<AIDifficulty>('grandmaster');
   const [userColor, setUserColor] = useState<Color>('w');
   const [orientation, setOrientation] = useState<Color>('w');
   const [boardTheme, setBoardTheme] = useState<BoardTheme>('green');
@@ -56,10 +59,11 @@ export const App: React.FC = () => {
   // Modals
   const [showNewGameModal, setShowNewGameModal] = useState<boolean>(false);
   const [showGameOverModal, setShowGameOverModal] = useState<boolean>(false);
+  const [showOnlineLobbyModal, setShowOnlineLobbyModal] = useState<boolean>(false);
 
   // Online credentials
   const [joinCodeInput, setJoinCodeInput] = useState<string>('');
-  const [playerNameInput, setPlayerNameInput] = useState<string>('Player');
+  const [copiedShareLink, setCopiedShareLink] = useState<boolean>(false);
 
   // History Review / Ply Navigation (-1 = live game, -2 = start, 0..N = move index)
   const [reviewPly, setReviewPly] = useState<number>(-1);
@@ -89,6 +93,31 @@ export const App: React.FC = () => {
   const liveSnapshot: GameSnapshot = isOnline
     ? socketHook.roomState?.gameState ?? localSnapshot
     : localSnapshot;
+
+  // URL query parameter auto-detection (e.g. ?room=XYZ123)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get('room');
+    if (roomParam) {
+      setMode('online');
+      setJoinCodeInput(roomParam.toUpperCase());
+      setShowOnlineLobbyModal(true);
+    }
+  }, []);
+
+  // When playing online, orient board to player's assigned color
+  useEffect(() => {
+    if (isOnline && socketHook.playerColor) {
+      if (socketHook.playerColor === 'b') {
+        setOrientation('b');
+        setUserColor('b');
+      } else if (socketHook.playerColor === 'w') {
+        setOrientation('w');
+        setUserColor('w');
+      }
+    }
+  }, [isOnline, socketHook.playerColor]);
 
   // Real-time clock tick and automatic timeout flag detector for local play
   useEffect(() => {
@@ -183,7 +212,7 @@ export const App: React.FC = () => {
   // Live Position Evaluation
   useEffect(() => {
     try {
-      const result = evalEngineRef.current.findBestMove(currentSnapshot.fen, { depth: 2 });
+      const result = evalEngineRef.current.findBestMove(currentSnapshot.fen, { depth: 2, quiescenceDepth: 2 });
       setEvalScore(result.evaluation);
     } catch {
       // Fallback
@@ -278,7 +307,7 @@ export const App: React.FC = () => {
     }
 
     try {
-      const result = evalEngineRef.current.findBestMove(currentSnapshot.fen, { depth: 3 });
+      const result = evalEngineRef.current.findBestMove(currentSnapshot.fen, { depth: 3, quiescenceDepth: 3 });
       if (result.bestMove) {
         setSingleUseHint({
           from: result.bestMove.from as Square,
@@ -381,13 +410,43 @@ export const App: React.FC = () => {
     }
   };
 
+  // Copy shareable Wi-Fi link for current online room
+  const handleCopyShareLink = async () => {
+    if (!socketHook.roomState?.roomId) return;
+    let hostDomain = window.location.hostname;
+    try {
+      const serverBase = `${window.location.protocol}//${window.location.hostname}:4000`;
+      const res = await fetch(`${serverBase}/api/network-info`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.lanIp && (hostDomain === 'localhost' || hostDomain === '127.0.0.1')) {
+          hostDomain = data.lanIp;
+        }
+      }
+    } catch {}
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const url = `http://${hostDomain}${port}/?room=${socketHook.roomState.roomId}`;
+    await navigator.clipboard.writeText(url);
+    setCopiedShareLink(true);
+    setTimeout(() => setCopiedShareLink(false), 2500);
+  };
+
   const topPlayerColor: Color = orientation === 'w' ? 'b' : 'w';
   const bottomPlayerColor: Color = orientation === 'w' ? 'w' : 'b';
+
+  const computerDifficultyLabel =
+    difficulty === 'grandmaster'
+      ? 'Super Hard (2400+)'
+      : difficulty === 'hard'
+      ? 'Hard (1950)'
+      : difficulty === 'medium'
+      ? 'Medium (1500)'
+      : 'Easy (1000)';
 
   return (
     <div className="min-h-screen bg-[#f5f5f4] text-stone-900 flex flex-col font-sans select-none">
       {/* Top Header Bar */}
-      <header className="border-b border-stone-200 bg-white/95 backdrop-blur px-6 py-2 flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
+      <header className="border-b border-stone-200 bg-white/95 backdrop-blur px-4 sm:px-6 py-2 flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-[#739552]/15 border border-[#739552]/30 flex items-center justify-center font-bold text-[#5f7d41] text-lg shadow-sm">
             ♞
@@ -419,6 +478,7 @@ export const App: React.FC = () => {
           <button
             onClick={() => {
               setMode('online');
+              setShowOnlineLobbyModal(true);
             }}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
               mode === 'online'
@@ -426,8 +486,8 @@ export const App: React.FC = () => {
                 : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <Globe size={13} className="text-[#739552]" />
-            <span>Play Online</span>
+            <Wifi size={13} className="text-[#739552]" />
+            <span>Wi-Fi / Online</span>
           </button>
           <button
             onClick={() => {
@@ -445,8 +505,20 @@ export const App: React.FC = () => {
           </button>
         </div>
 
-        {/* Controls */}
+        {/* Controls & Share Button */}
         <div className="flex items-center gap-2">
+          {/* Active Wi-Fi Room Share Button */}
+          {isOnline && socketHook.roomState?.roomId && (
+            <button
+              onClick={handleCopyShareLink}
+              title="Copy shareable Wi-Fi link for friends"
+              className="px-2.5 py-1.5 rounded-xl bg-[#739552]/10 hover:bg-[#739552]/20 border border-[#739552]/30 text-[#4c6633] font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              {copiedShareLink ? <Check size={13} /> : <Share2 size={13} />}
+              <span>{copiedShareLink ? 'Link Copied!' : `Wi-Fi Room: ${socketHook.roomState.roomId}`}</span>
+            </button>
+          )}
+
           {/* One-time hint button (only active on user's turn) */}
           <button
             onClick={handleRequestOneTimeHint}
@@ -482,18 +554,78 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Full-View Game Studio: Mathematically Centered Chessboard via Symmetrical 3-Column Grid */}
-      <main className="flex-1 w-full max-w-[1600px] mx-auto p-3 sm:p-5 flex flex-col justify-center">
-        <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] items-center gap-6">
-          {/* Column 1 (Left): Invisible Symmetrical Balancer ensuring the Center Column is DEAD CENTER */}
+      {/* Main Full-View Game Studio: Dead Center Chessboard via Symmetrical 3-Column Grid */}
+      <main className="flex-1 w-full max-w-[1750px] mx-auto p-2 sm:p-4 flex flex-col justify-center">
+        <div className="w-full grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr] items-center gap-4 sm:gap-6">
+          {/* Column 1 (Left): Symmetrical Balancer ensuring the Center Column is DEAD CENTER */}
           <div className="hidden xl:flex justify-end items-center pr-2">
-            <div className="w-[320px] pointer-events-none" />
+            <div className="w-[350px] flex flex-col gap-3">
+              {/* Local Wi-Fi Active Room Banner */}
+              {isOnline && socketHook.roomState?.roomId ? (
+                <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                    <span className="font-bold text-stone-800 text-xs flex items-center gap-1.5">
+                      <Wifi size={14} className="text-[#739552]" /> Local Wi-Fi Match
+                    </span>
+                    <span className="font-mono font-bold px-2 py-0.5 bg-[#739552]/10 border border-[#739552]/20 text-[#5f7d41] rounded-md text-xs">
+                      {socketHook.roomState.roomId}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-600 leading-relaxed">
+                    Share this link with a friend on your Wi-Fi network to play across devices in real time:
+                  </p>
+                  <button
+                    onClick={handleCopyShareLink}
+                    className="w-full py-2.5 px-3 bg-[#739552] hover:bg-[#648346] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all"
+                  >
+                    {copiedShareLink ? <Check size={14} /> : <Share2 size={14} />}
+                    <span>{copiedShareLink ? 'Link Copied to Clipboard!' : 'Copy Wi-Fi Invite Link'}</span>
+                  </button>
+                </div>
+              ) : mode === 'computer' ? (
+                <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                    <span className="font-bold text-stone-800 text-xs flex items-center gap-1.5">
+                      <Bot size={14} className="text-[#739552]" /> Engine Opponent
+                    </span>
+                    <span
+                      className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1 ${
+                        difficulty === 'grandmaster'
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          : 'bg-stone-100 text-stone-700'
+                      }`}
+                    >
+                      {difficulty === 'grandmaster' && <Flame size={11} className="text-amber-600" />}
+                      {difficulty}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-stone-500 flex flex-col gap-1">
+                    <div className="flex justify-between">
+                      <span>Rating Level:</span>
+                      <strong className="text-stone-800 font-bold">{computerDifficultyLabel}</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Search Depth:</span>
+                      <strong className="text-stone-800 font-bold">
+                        {difficulty === 'grandmaster' ? '4 Plies + Quiescence' : difficulty === 'hard' ? '3 Plies + Quiescence' : '2 Plies'}
+                      </strong>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowNewGameModal(true)}
+                    className="mt-1 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs rounded-xl transition-all"
+                  >
+                    Change Engine Difficulty
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
 
-          {/* Column 2 (Center): THE CHESSBOARD + EVAL BAR (LOCKED IN THE DEAD CENTER OF THE SCREEN) */}
+          {/* Column 2 (Center): EXPANDED CHESSBOARD + EVALUATION BAR (DEAD CENTER AT ALL ZOOM LEVELS) */}
           <div className="flex items-center justify-center gap-3 justify-self-center shrink-0">
             {/* Evaluation Bar */}
-            <div className="h-[460px] sm:h-[500px] md:h-[520px] flex items-center">
+            <div className="h-[min(670px,calc(100vh-140px))] flex items-center">
               <EvaluationBar
                 scoreCentipawns={evalScore}
                 isCheckmate={currentSnapshot.isCheckmate}
@@ -501,8 +633,8 @@ export const App: React.FC = () => {
               />
             </div>
 
-            {/* Chessboard */}
-            <div className="w-[460px] sm:w-[500px] md:w-[520px] aspect-square flex items-center justify-center">
+            {/* Chessboard (Expanded to 670px to eliminate excessive white space) */}
+            <div className="w-[min(670px,calc(100vh-140px))] h-[min(670px,calc(100vh-140px))] aspect-square flex items-center justify-center">
               <Chessboard
                 snapshot={currentSnapshot}
                 legalMoves={currentLegalMoves}
@@ -522,17 +654,17 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 3 (Right): Sleek Aligned Right-Side Panel (Top & Bottom Timers, Locked Height) */}
-          <div className="w-full xl:w-[320px] max-w-[320px] mx-auto xl:mx-0 flex flex-col justify-between h-[520px] max-h-[520px] overflow-hidden justify-self-center xl:justify-self-start shrink-0">
+          {/* Column 3 (Right): Symmetrical Aligned Right-Side Panel (Top & Bottom Timers, Locked Height) */}
+          <div className="w-full xl:w-[350px] max-w-[350px] mx-auto xl:mx-0 flex flex-col justify-between h-[min(670px,calc(100vh-140px))] max-h-[min(670px,calc(100vh-140px))] overflow-hidden justify-self-center xl:justify-self-start shrink-0">
             {/* 1. TOP TIMER: Opponent Clock (Aligned with top of board) */}
             <div className="shrink-0 flex flex-col gap-1">
               <ClockDisplay
                 color={topPlayerColor}
                 playerName={
                   isOnline
-                    ? socketHook.roomState?.blackPlayer?.name || 'Waiting for opponent...'
+                    ? socketHook.roomState?.blackPlayer?.name || 'Waiting for Wi-Fi opponent...'
                     : mode === 'computer'
-                    ? `Computer (${difficulty.toUpperCase()})`
+                    ? `Computer (${computerDifficultyLabel})`
                     : 'Player 2 (Black)'
                 }
                 clockState={liveSnapshot.clocks}
@@ -549,6 +681,27 @@ export const App: React.FC = () => {
 
             {/* 2. MIDDLE AREA: Turn Status, Opening Book, Locked Move History, and Controls */}
             <div className="flex-1 flex flex-col gap-2 my-auto overflow-hidden justify-center">
+              {/* Draw Offer Notification */}
+              {isOnline && socketHook.pendingDrawOffer && (
+                <div className="bg-amber-50 border border-amber-300 rounded-xl p-2.5 flex items-center justify-between shadow-sm shrink-0">
+                  <div className="text-xs font-bold text-amber-900">Opponent offered a draw</div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => socketHook.respondDraw(true)}
+                      className="px-2.5 py-1 bg-[#739552] text-white text-xs font-bold rounded-lg shadow-sm"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => socketHook.respondDraw(false)}
+                      className="px-2.5 py-1 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold rounded-lg"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Live Turn Status Banner */}
               {liveSnapshot.status === 'active' ? (
                 <div
@@ -568,7 +721,7 @@ export const App: React.FC = () => {
                       {isUserTurn
                         ? "Your turn — Make a move!"
                         : mode === 'computer'
-                        ? 'Computer is thinking...'
+                        ? 'Computer is calculating...'
                         : "Opponent's turn..."}
                     </span>
                   </div>
@@ -612,6 +765,7 @@ export const App: React.FC = () => {
                   snapshot={liveSnapshot}
                   currentPlyIndex={reviewPly}
                   onSelectPly={(plyIndex) => setReviewPly(plyIndex)}
+                  className="h-[210px] max-h-[210px]"
                 />
               </div>
 
@@ -688,7 +842,7 @@ export const App: React.FC = () => {
                 color={bottomPlayerColor}
                 playerName={
                   isOnline
-                    ? socketHook.roomState?.whitePlayer?.name || playerNameInput
+                    ? socketHook.roomState?.whitePlayer?.name || 'You (White)'
                     : mode === 'computer'
                     ? 'You'
                     : 'Player 1 (White)'
@@ -701,13 +855,24 @@ export const App: React.FC = () => {
         </div>
       </main>
 
-      {/* New Game Setup Modal */}
+      {/* New Game Setup Modal (vs Computer) */}
       <NewGameModal
         isOpen={showNewGameModal}
         initialColor={userColor}
         initialDifficulty={difficulty}
         onClose={() => setShowNewGameModal(false)}
         onStartGame={(color, diff, tc) => startNewLocalGame(color, diff, tc)}
+      />
+
+      {/* Local Wi-Fi & Online Lobby Modal */}
+      <OnlineLobbyModal
+        isOpen={showOnlineLobbyModal}
+        onClose={() => setShowOnlineLobbyModal(false)}
+        onCreateRoom={(tc, name, color) => socketHook.createRoom(tc, name, color)}
+        onJoinRoom={(roomId, name) => socketHook.joinRoom(roomId, name)}
+        initialRoomCode={joinCodeInput}
+        isJoined={Boolean(socketHook.roomState?.blackPlayer && socketHook.roomState?.whitePlayer)}
+        currentRoomId={socketHook.roomState?.roomId}
       />
 
       {/* Victory / Defeat Game Over Modal */}
@@ -718,7 +883,11 @@ export const App: React.FC = () => {
         userColor={userColor}
         onPlayAgain={() => {
           setShowGameOverModal(false);
-          setShowNewGameModal(true);
+          if (isOnline) {
+            setShowOnlineLobbyModal(true);
+          } else {
+            setShowNewGameModal(true);
+          }
         }}
         onReviewBoard={() => setShowGameOverModal(false)}
       />

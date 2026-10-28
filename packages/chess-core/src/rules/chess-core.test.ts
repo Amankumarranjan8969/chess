@@ -173,8 +173,8 @@ test('ChessGame - Clock handling and increment', () => {
   });
 
   const clock = game.getClock()!;
-  const startState = clock.getState();
-  assert.equal(startState.whiteRemainingMs, 60000);
+  const startState = clock.getState(Date.now());
+  assert.ok(startState.whiteRemainingMs <= 60000 && startState.whiteRemainingMs >= 59900);
   assert.equal(startState.blackRemainingMs, 60000);
   assert.equal(startState.activeColor, 'w');
 

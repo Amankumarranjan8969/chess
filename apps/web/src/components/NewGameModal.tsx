@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Color, TimeControl } from '@chess/core';
 import { AIDifficulty } from '../hooks/useChessAI.js';
-import { Bot, Play, X, Clock, Zap } from 'lucide-react';
+import { Bot, Play, X, Clock, Zap, Flame, Award } from 'lucide-react';
 
 interface NewGameModalProps {
   isOpen: boolean;
@@ -16,6 +16,13 @@ const PRESET_TIMES: { label: string; sub: string; tc: TimeControl }[] = [
   { label: '3 | 2', sub: 'Blitz (3+2)', tc: { initialMs: 180000, incrementMs: 2000 } },
   { label: '5 | 3', sub: 'Rapid (5+3)', tc: { initialMs: 300000, incrementMs: 3000 } },
   { label: '10 min', sub: 'Standard (10+0)', tc: { initialMs: 600000, incrementMs: 0 } },
+];
+
+const DIFFICULTY_LEVELS: { id: AIDifficulty; label: string; elo: string; icon?: React.ReactNode; isGrandmaster?: boolean }[] = [
+  { id: 'easy', label: 'Easy', elo: '~1000' },
+  { id: 'medium', label: 'Medium', elo: '~1500' },
+  { id: 'hard', label: 'Hard', elo: '~1950' },
+  { id: 'grandmaster', label: 'Super Hard', elo: '~2400+', isGrandmaster: true },
 ];
 
 export const NewGameModal: React.FC<NewGameModalProps> = ({
@@ -95,18 +102,32 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
           <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">
             2. Engine Difficulty
           </label>
-          <div className="grid grid-cols-3 gap-2">
-            {(['easy', 'medium', 'hard'] as AIDifficulty[]).map((d) => (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {DIFFICULTY_LEVELS.map((item) => (
               <button
-                key={d}
-                onClick={() => setSelectedDifficulty(d)}
-                className={`py-2 rounded-xl text-xs font-bold border capitalize transition-all ${
-                  selectedDifficulty === d
-                    ? 'bg-[#739552] border-[#739552] text-white shadow-sm'
+                key={item.id}
+                onClick={() => setSelectedDifficulty(item.id)}
+                className={`py-2.5 px-2 rounded-xl text-xs font-bold border transition-all flex flex-col items-center justify-center gap-0.5 ${
+                  selectedDifficulty === item.id
+                    ? item.isGrandmaster
+                      ? 'bg-gradient-to-br from-amber-600 to-rose-600 border-amber-600 text-white shadow-md ring-2 ring-amber-400/50'
+                      : 'bg-[#739552] border-[#739552] text-white shadow-sm'
                     : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
                 }`}
               >
-                {d}
+                <div className="flex items-center gap-1 font-extrabold">
+                  {item.isGrandmaster && <Flame size={12} className={selectedDifficulty === item.id ? 'text-yellow-200' : 'text-amber-600'} />}
+                  <span>{item.label}</span>
+                </div>
+                <div
+                  className={`text-[10px] font-medium ${
+                    selectedDifficulty === item.id
+                      ? item.isGrandmaster ? 'text-amber-100' : 'text-stone-100'
+                      : 'text-stone-400'
+                  }`}
+                >
+                  {item.elo}
+                </div>
               </button>
             ))}
           </div>

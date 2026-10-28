@@ -1,4 +1,5 @@
 import http from 'node:http';
+import os from 'node:os';
 import express from 'express';
 import cors from 'cors';
 import { Server as SocketServer } from 'socket.io';
@@ -34,6 +35,24 @@ export function createServer() {
     });
   });
 
+  app.get('/api/network-info', (_req, res) => {
+    const nets = os.networkInterfaces();
+    const addresses: string[] = [];
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name] || []) {
+        if (net.family === 'IPv4' && !net.internal && !net.address.startsWith('169.254.')) {
+          addresses.push(net.address);
+        }
+      }
+    }
+    res.json({
+      lanIp: addresses[0] || 'localhost',
+      addresses,
+      webPort: 3000,
+      serverPort: PORT,
+    });
+  });
+
   app.get('/api/rooms/:id', (req, res) => {
     const room = roomManager.getRoom(req.params.id);
     if (!room) {
@@ -48,7 +67,7 @@ export function createServer() {
 // Start standalone if executed directly
 if (process.env.NODE_ENV !== 'test') {
   const { server } = createServer();
-  server.listen(PORT, () => {
-    console.log(`[ChessServer] Real-time authoritative server listening on port ${PORT}`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[ChessServer] Real-time authoritative server listening on 0.0.0.0:${PORT}`);
   });
 }

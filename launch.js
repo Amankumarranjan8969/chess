@@ -1,12 +1,27 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// Detect local IPv4 address
+const nets = os.networkInterfaces();
+let lanIp = 'localhost';
+for (const name of Object.keys(nets)) {
+  for (const net of nets[name] || []) {
+    if (net.family === 'IPv4' && !net.internal && !net.address.startsWith('169.254.')) {
+      lanIp = net.address;
+      break;
+    }
+  }
+}
+
 console.log('==============================================');
 console.log('   🚀 Launching Chess Platform Servers...     ');
 console.log('==============================================');
+console.log(`📡 Local Wi-Fi IP detected: ${lanIp}`);
+console.log(`🔗 Share this with a friend on your Wi-Fi: http://${lanIp}:3000\n`);
 
 const isWindows = process.platform === 'win32';
 const npmCmd = isWindows ? 'npm.cmd' : 'npm';
