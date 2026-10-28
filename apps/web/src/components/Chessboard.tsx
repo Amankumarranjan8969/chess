@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Color, DetailedMove, GameSnapshot, PieceSymbol, Square } from '@chess/core';
 import { ChessPiece } from './ChessPiece.js';
 
-export type BoardTheme = 'green' | 'wood' | 'dark';
+export type BoardTheme = 'green' | 'wood' | 'ocean' | 'classic' | 'dark';
 
 export interface BoardThemeColors {
   light: string;
@@ -23,6 +23,18 @@ export const BOARD_THEMES: Record<BoardTheme, BoardThemeColors> = {
     dark: '#b58863',
     lightCoord: '#b58863',
     darkCoord: '#f0d9b5',
+  },
+  ocean: {
+    light: '#dee3e6',
+    dark: '#5d8aa8',
+    lightCoord: '#5d8aa8',
+    darkCoord: '#dee3e6',
+  },
+  classic: {
+    light: '#e0e0e0',
+    dark: '#708090',
+    lightCoord: '#708090',
+    darkCoord: '#e0e0e0',
   },
   dark: {
     light: '#4a5568',
@@ -45,7 +57,7 @@ interface ChessboardProps {
   interactive: boolean;
   theme?: BoardTheme;
   hintMove?: { from: Square; to: Square } | null;
-  onMove: (from: Square, to: Square, promotion?: PieceSymbol) => void;
+  onMove?: (from: Square, to: Square, promotion?: PieceSymbol) => void;
 }
 
 export const Chessboard: React.FC<ChessboardProps> = ({
@@ -134,7 +146,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
     if (isPromo) {
       setPendingPromotion({ from, to });
     } else {
-      onMove(from, to);
+      onMove?.(from, to);
       setSelectedSquare(null);
       setArrows([]);
       setHighlightedSquares(new Set());
@@ -143,7 +155,7 @@ export const Chessboard: React.FC<ChessboardProps> = ({
 
   const handlePromotionSelect = (piece: PieceSymbol) => {
     if (!pendingPromotion) return;
-    onMove(pendingPromotion.from, pendingPromotion.to, piece);
+    onMove?.(pendingPromotion.from, pendingPromotion.to, piece);
     setPendingPromotion(null);
     setSelectedSquare(null);
   };

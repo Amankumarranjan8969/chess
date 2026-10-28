@@ -9,6 +9,7 @@ interface GameOverModalProps {
   userColor: Color;
   onPlayAgain: () => void;
   onReviewBoard: () => void;
+  onOpenGameReview?: () => void;
 }
 
 export const GameOverModal: React.FC<GameOverModalProps> = ({
@@ -18,6 +19,7 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   userColor,
   onPlayAgain,
   onReviewBoard,
+  onOpenGameReview,
 }) => {
   if (!isOpen || !result) return null;
 
@@ -103,18 +105,31 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
 
           {/* Action Buttons */}
           <div className="flex flex-col w-full gap-2.5">
+            {onOpenGameReview && (
+              <button
+                onClick={onOpenGameReview}
+                className="w-full py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide uppercase transition-all shadow-md bg-[#739552] hover:bg-[#648346] text-white flex items-center justify-center gap-2 hover:scale-[1.01]"
+              >
+                <Eye size={16} /> Review Game in Analysis Studio
+              </button>
+            )}
+
             <button
               onClick={onPlayAgain}
-              className="w-full py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide uppercase transition-all shadow-md bg-[#739552] hover:bg-[#648346] text-white flex items-center justify-center gap-2 hover:scale-[1.01]"
+              className={`w-full py-3 px-6 rounded-xl font-bold text-xs tracking-wide uppercase transition-all shadow-sm flex items-center justify-center gap-2 ${
+                onOpenGameReview
+                  ? 'bg-stone-900 text-white hover:bg-stone-800'
+                  : 'bg-[#739552] hover:bg-[#648346] text-white'
+              }`}
             >
-              <RotateCcw size={16} /> Play Again
+              <RotateCcw size={15} /> Play Again
             </button>
 
             <button
               onClick={onReviewBoard}
               className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-stone-700 hover:text-black bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-colors flex items-center justify-center gap-1.5"
             >
-              <Eye size={14} /> Review Board
+              Close & Stay on Board
             </button>
           </div>
         </div>
