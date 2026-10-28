@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { ChessAI, DetailedMove, GameSnapshot } from '@chess/core';
+import { ChessAI, GameSnapshot } from '@chess/core';
 
 export type AIDifficulty = 'easy' | 'medium' | 'hard';
 
@@ -16,8 +16,8 @@ export function useChessAI() {
       setIsThinking(true);
       abortControllerRef.current = false;
 
-      // Small natural delay so user sees opponent "thinking"
-      const delay = difficulty === 'easy' ? 400 : difficulty === 'medium' ? 700 : 1000;
+      // Realistic thinking time (1.2s - 2.5s) so the computer's clock visibly ticks down
+      const delay = difficulty === 'easy' ? 1000 : difficulty === 'medium' ? 1800 : 2500;
       await new Promise((res) => setTimeout(res, delay));
 
       if (abortControllerRef.current || snapshot.status !== 'active') {

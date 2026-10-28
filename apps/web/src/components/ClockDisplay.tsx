@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ClockState, Color } from '@chess/core';
 import { Clock, Hourglass } from 'lucide-react';
 
@@ -17,29 +17,11 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
   isActive,
   materialAdvantage,
 }) => {
-  const [displayMs, setDisplayMs] = useState<number>(() => {
-    if (!clockState) return 0;
-    return color === 'w' ? clockState.whiteRemainingMs : clockState.blackRemainingMs;
-  });
-
-  useEffect(() => {
-    if (!clockState) return;
-
-    const baseMs = color === 'w' ? clockState.whiteRemainingMs : clockState.blackRemainingMs;
-
-    if (!isActive || clockState.isPaused || !clockState.turnStartedAtMs) {
-      setDisplayMs(baseMs);
-      return;
-    }
-
-    const interval = setInterval(() => {
-      const elapsed = Math.max(0, Date.now() - (clockState.turnStartedAtMs || Date.now()));
-      const remaining = Math.max(0, baseMs - elapsed);
-      setDisplayMs(remaining);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [clockState, isActive, color]);
+  const displayMs = clockState
+    ? color === 'w'
+      ? clockState.whiteRemainingMs
+      : clockState.blackRemainingMs
+    : 0;
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -59,7 +41,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between px-4 py-2.5 rounded-xl border transition-all duration-200 shadow-sm ${
+      className={`flex items-center justify-between px-4 py-2.5 rounded-xl border transition-all duration-150 shadow-sm ${
         isActive
           ? 'bg-[#f7fbf3] border-[#739552] ring-2 ring-[#739552]/30 shadow-md'
           : 'bg-white border-stone-200'

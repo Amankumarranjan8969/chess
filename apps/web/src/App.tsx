@@ -50,7 +50,7 @@ export const App: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
-  // Single-use, one-time hint state (only shown for the human player's turn, vanishes after 1 move)
+  // Single-use, player-only hint (only available on player's turn, vanishes after 1 move)
   const [singleUseHint, setSingleUseHint] = useState<{ from: Square; to: Square } | null>(null);
 
   // Modals
@@ -387,16 +387,16 @@ export const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#f5f5f4] text-stone-900 flex flex-col font-sans select-none">
       {/* Top Header Bar */}
-      <header className="border-b border-stone-200 bg-white/90 backdrop-blur px-6 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+      <header className="border-b border-stone-200 bg-white/95 backdrop-blur px-6 py-2 flex items-center justify-between sticky top-0 z-30 shadow-sm shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#739552]/15 border border-[#739552]/30 flex items-center justify-center font-bold text-[#5f7d41] text-xl shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-[#739552]/15 border border-[#739552]/30 flex items-center justify-center font-bold text-[#5f7d41] text-lg shadow-sm">
             ♞
           </div>
           <div>
-            <h1 className="font-extrabold text-base leading-tight tracking-tight text-stone-900 flex items-center gap-2">
+            <h1 className="font-extrabold text-sm sm:text-base leading-tight tracking-tight text-stone-900 flex items-center gap-2">
               Grandmaster Arena
             </h1>
-            <p className="text-[11px] text-stone-500 font-medium">Tournament Chess Platform</p>
+            <p className="text-[10px] text-stone-500 font-medium">Tournament Chess Platform</p>
           </div>
         </div>
 
@@ -407,26 +407,26 @@ export const App: React.FC = () => {
               setMode('computer');
               setShowNewGameModal(true);
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
               mode === 'computer'
                 ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
                 : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <Bot size={14} className="text-[#739552]" />
+            <Bot size={13} className="text-[#739552]" />
             <span>vs Computer</span>
           </button>
           <button
             onClick={() => {
               setMode('online');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
               mode === 'online'
                 ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
                 : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <Globe size={14} className="text-[#739552]" />
+            <Globe size={13} className="text-[#739552]" />
             <span>Play Online</span>
           </button>
           <button
@@ -434,20 +434,20 @@ export const App: React.FC = () => {
               setMode('local');
               startNewLocalGame('w', 'medium');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-bold transition-all ${
               mode === 'local'
                 ? 'bg-white text-stone-900 shadow-sm border border-stone-200'
                 : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <Users size={14} className="text-[#739552]" />
+            <Users size={13} className="text-[#739552]" />
             <span>Pass & Play</span>
           </button>
         </div>
 
-        {/* Action Controls & Fullscreen */}
+        {/* Controls */}
         <div className="flex items-center gap-2">
-          {/* One-time hint button (only enabled on user's turn) */}
+          {/* One-time hint button (only active on user's turn) */}
           <button
             onClick={handleRequestOneTimeHint}
             disabled={!isUserTurn}
@@ -460,34 +460,34 @@ export const App: React.FC = () => {
                 : 'bg-stone-100 border-stone-200 text-stone-400 cursor-not-allowed opacity-50'
             }`}
           >
-            <Lightbulb size={14} className={isUserTurn ? "text-amber-500" : "text-stone-400"} />
+            <Lightbulb size={13} className={isUserTurn ? "text-amber-500" : "text-stone-400"} />
             <span>Hint</span>
           </button>
 
           <button
             onClick={toggleSound}
             title={soundEnabled ? 'Mute Sounds' : 'Unmute Sounds'}
-            className="p-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-stone-600 transition-colors shadow-sm"
+            className="p-1.5 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-stone-600 transition-colors shadow-sm"
           >
-            {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
 
           <button
             onClick={toggleFullscreen}
             title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-            className="p-2 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-stone-600 transition-colors shadow-sm"
+            className="p-1.5 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-stone-600 transition-colors shadow-sm"
           >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
           </button>
         </div>
       </header>
 
-      {/* Main Full-View Game Studio */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col lg:flex-row gap-6 items-stretch justify-center">
-        {/* Left Section: Live Eval Bar + Chessboard */}
-        <div className="flex items-center justify-center gap-3">
+      {/* Main Full-View Game Studio: Board and Right Side Timers Aligned */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col lg:flex-row gap-5 items-center lg:items-start justify-center">
+        {/* Left Section: Live Eval Bar + Chessboard (Fixed Height 580px) */}
+        <div className="flex items-center justify-center gap-3 shrink-0">
           {/* Evaluation Bar */}
-          <div className="h-[460px] sm:h-[540px] md:h-[600px] flex items-center">
+          <div className="h-[460px] sm:h-[520px] md:h-[580px] flex items-center">
             <EvaluationBar
               scoreCentipawns={evalScore}
               isCheckmate={currentSnapshot.isCheckmate}
@@ -496,7 +496,7 @@ export const App: React.FC = () => {
           </div>
 
           {/* Chessboard */}
-          <div className="w-full max-w-[600px] flex items-center justify-center">
+          <div className="w-[460px] sm:w-[520px] md:w-[580px] aspect-square flex items-center justify-center">
             <Chessboard
               snapshot={currentSnapshot}
               legalMoves={currentLegalMoves}
@@ -516,10 +516,10 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Section: Timers Perfectly Aligned Top & Bottom + Move Box */}
-        <div className="flex-1 max-w-[440px] flex flex-col justify-between gap-3 h-auto min-h-[460px] sm:min-h-[540px] md:min-h-[600px]">
+        {/* Right Section: Timers Top & Bottom + Move Register (Strictly locked to 580px height!) */}
+        <div className="w-full lg:w-[410px] max-w-[410px] flex flex-col justify-between h-[580px] max-h-[580px] overflow-hidden shrink-0">
           {/* 1. TOP TIMER: Opponent Clock (Aligned with top of board) */}
-          <div className="w-full flex flex-col gap-1">
+          <div className="shrink-0 flex flex-col gap-1">
             <ClockDisplay
               color={topPlayerColor}
               playerName={
@@ -541,12 +541,12 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* 2. MIDDLE AREA: Turn Status, Opening Book, Moves Table & Game Controls */}
-          <div className="flex-1 flex flex-col gap-2.5 my-1">
+          {/* 2. MIDDLE AREA: Turn Status, Opening Book, Locked Move History, and Controls */}
+          <div className="flex-1 flex flex-col gap-2 my-auto overflow-hidden justify-center">
             {/* Live Turn Status Banner */}
             {liveSnapshot.status === 'active' ? (
               <div
-                className={`py-2 px-3.5 rounded-xl border flex items-center justify-between text-xs font-bold transition-all shadow-sm ${
+                className={`py-1.5 px-3 rounded-xl border flex items-center justify-between text-xs font-bold transition-all shadow-sm shrink-0 ${
                   isUserTurn
                     ? 'bg-[#f0fdf4] border-[#86efac] text-[#15803d]'
                     : 'bg-white border-stone-200 text-stone-500'
@@ -554,7 +554,7 @@ export const App: React.FC = () => {
               >
                 <div className="flex items-center gap-2">
                   <span
-                    className={`w-2.5 h-2.5 rounded-full ${
+                    className={`w-2 h-2 rounded-full ${
                       isUserTurn ? 'bg-[#22c55e] animate-ping' : 'bg-amber-400'
                     }`}
                   />
@@ -567,17 +567,17 @@ export const App: React.FC = () => {
                   </span>
                 </div>
                 {liveSnapshot.isCheck && (
-                  <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold uppercase tracking-wider text-[10px] border border-rose-200">
+                  <span className="px-2 py-0.2 rounded-full bg-rose-100 text-rose-700 font-extrabold uppercase tracking-wider text-[10px] border border-rose-200">
                     Check!
                   </span>
                 )}
               </div>
             ) : (
-              <div className="py-2 px-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs flex items-center justify-between shadow-sm">
+              <div className="py-1.5 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 font-bold text-xs flex items-center justify-between shadow-sm shrink-0">
                 <span>Result: {liveSnapshot.result}</span>
                 <button
                   onClick={() => setShowGameOverModal(true)}
-                  className="underline hover:text-black font-semibold"
+                  className="underline hover:text-black font-semibold text-[11px]"
                 >
                   View Details
                 </button>
@@ -586,8 +586,8 @@ export const App: React.FC = () => {
 
             {/* Opening Book Banner */}
             {openingInfo && (
-              <div className="bg-white border border-stone-200 rounded-xl px-3 py-2 shadow-sm flex items-center gap-2.5">
-                <BookOpen size={15} className="text-[#739552] shrink-0" />
+              <div className="bg-white border border-stone-200 rounded-xl px-2.5 py-1.5 shadow-sm flex items-center gap-2 shrink-0">
+                <BookOpen size={13} className="text-[#739552] shrink-0" />
                 <div className="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
                   <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
                     {openingInfo.eco}
@@ -599,52 +599,8 @@ export const App: React.FC = () => {
               </div>
             )}
 
-            {/* Online Match Panel if in Online Mode */}
-            {mode === 'online' && !socketHook.roomState && (
-              <div className="bg-white border border-stone-200 rounded-xl p-3 shadow-sm flex flex-col gap-2.5">
-                <div>
-                  <label className="text-xs text-stone-500 font-semibold">Your Name</label>
-                  <input
-                    type="text"
-                    value={playerNameInput}
-                    onChange={(e) => setPlayerNameInput(e.target.value)}
-                    className="w-full mt-1 bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1 text-xs text-stone-900 focus:outline-none focus:border-[#739552]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() =>
-                      socketHook.createRoom(
-                        { initialMs: 300000, incrementMs: 3000 },
-                        playerNameInput
-                      )
-                    }
-                    className="flex-1 bg-[#739552] hover:bg-[#648346] text-white font-bold py-2 rounded-lg text-xs transition-colors shadow-sm"
-                  >
-                    Create Room
-                  </button>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter Room Code"
-                    value={joinCodeInput}
-                    onChange={(e) => setJoinCodeInput(e.target.value.toUpperCase())}
-                    className="flex-1 bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1 text-xs text-stone-900 uppercase font-mono tracking-wider text-center"
-                  />
-                  <button
-                    onClick={() => socketHook.joinRoom(joinCodeInput, playerNameInput)}
-                    disabled={joinCodeInput.length < 4}
-                    className="bg-stone-800 hover:bg-stone-700 disabled:opacity-40 text-white font-bold px-3 py-1 rounded-lg text-xs"
-                  >
-                    Join
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Move History Table */}
-            <div className="flex-1 min-h-[160px] flex flex-col">
+            {/* Locked-Height Move Register (Does NOT extend itself!) */}
+            <div className="shrink-0">
               <MoveHistory
                 moves={liveSnapshot.moveHistory}
                 snapshot={liveSnapshot}
@@ -653,27 +609,12 @@ export const App: React.FC = () => {
               />
             </div>
 
-            {/* Historical Review Banner */}
-            {reviewPly !== -1 && (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-2 flex items-center justify-between shadow-sm">
-                <span className="text-xs text-amber-800 font-bold">
-                  Move #{reviewPly === -2 ? 0 : reviewPly + 1}
-                </span>
-                <button
-                  onClick={() => setReviewPly(-1)}
-                  className="px-2.5 py-1 rounded-lg bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 shadow-sm"
-                >
-                  Live
-                </button>
-              </div>
-            )}
-
             {/* In-Game Action Bar */}
-            <div className="flex items-center justify-between gap-1.5 pt-1">
+            <div className="flex items-center justify-between gap-1 shrink-0 pt-0.5">
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={flipBoard}
-                  className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-xs font-semibold text-stone-700 transition-colors flex items-center gap-1 shadow-sm"
+                  className="px-2 py-1 rounded-xl bg-white hover:bg-stone-50 border border-stone-200 text-xs font-semibold text-stone-700 transition-colors flex items-center gap-1 shadow-sm"
                 >
                   <RotateCcw size={12} /> Flip
                 </button>
@@ -681,7 +622,7 @@ export const App: React.FC = () => {
                 <div className="flex items-center bg-white p-0.5 rounded-xl border border-stone-200 text-xs shadow-sm">
                   <button
                     onClick={() => setBoardTheme('green')}
-                    className={`px-2 py-1 rounded-lg transition-colors font-bold ${
+                    className={`px-2 py-0.5 rounded-lg transition-colors font-bold ${
                       boardTheme === 'green' ? 'bg-[#739552] text-white' : 'text-stone-500'
                     }`}
                   >
@@ -689,7 +630,7 @@ export const App: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setBoardTheme('wood')}
-                    className={`px-2 py-1 rounded-lg transition-colors font-bold ${
+                    className={`px-2 py-0.5 rounded-lg transition-colors font-bold ${
                       boardTheme === 'wood' ? 'bg-[#b58863] text-white' : 'text-stone-500'
                     }`}
                   >
@@ -700,18 +641,18 @@ export const App: React.FC = () => {
                 {!isOnline && (
                   <button
                     onClick={() => setShowNewGameModal(true)}
-                    className="px-3 py-1.5 rounded-xl bg-[#739552] hover:bg-[#648346] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-xl bg-[#739552] hover:bg-[#648346] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1"
                   >
-                    <Play size={12} fill="white" /> New
+                    <Play size={11} fill="white" /> New
                   </button>
                 )}
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 {liveSnapshot.canClaimThreefold && (
                   <button
                     onClick={() => handleClaimDraw('threefold')}
-                    className="px-2.5 py-1.5 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold shadow-sm"
+                    className="px-2 py-1 rounded-xl bg-amber-100 border border-amber-300 text-amber-900 text-xs font-bold shadow-sm"
                   >
                     3-Fold
                   </button>
@@ -719,7 +660,7 @@ export const App: React.FC = () => {
                 {liveSnapshot.status === 'active' && (
                   <button
                     onClick={handleResign}
-                    className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm"
+                    className="px-2 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-1 transition-colors shadow-sm"
                   >
                     <Flag size={12} /> Resign
                   </button>
@@ -729,7 +670,7 @@ export const App: React.FC = () => {
           </div>
 
           {/* 3. BOTTOM TIMER: Human Player Clock (Aligned with bottom of board) */}
-          <div className="w-full flex flex-col gap-1">
+          <div className="shrink-0 flex flex-col gap-1">
             <div className="px-1">
               <CapturedPieces
                 captured={bottomPlayerColor === 'w' ? whiteCaptured : blackCaptured}
