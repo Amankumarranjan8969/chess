@@ -59,10 +59,10 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
 
   return (
     <div
-      className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all duration-200 ${
+      className={`flex items-center justify-between px-4 py-2.5 rounded-xl border transition-all duration-200 shadow-sm ${
         isActive
-          ? 'bg-[#262421] border-[#739552] shadow-[0_0_15px_rgba(115,149,82,0.25)] ring-1 ring-[#739552]/50'
-          : 'bg-[#21201d]/90 border-[#33302a]'
+          ? 'bg-[#f7fbf3] border-[#739552] ring-2 ring-[#739552]/30 shadow-md'
+          : 'bg-white border-stone-200'
       }`}
     >
       {/* Player info & live status indicator */}
@@ -70,7 +70,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
         <div className="relative">
           <div
             className={`w-4 h-4 rounded-full border shadow-sm ${
-              color === 'w' ? 'bg-[#fdfdfd] border-stone-400' : 'bg-[#2b2723] border-stone-600'
+              color === 'w' ? 'bg-white border-stone-400' : 'bg-[#292524] border-stone-700'
             }`}
           />
           {isActive && (
@@ -83,16 +83,16 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
 
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#edebe8] text-sm tracking-wide">{playerName}</span>
+            <span className="font-bold text-stone-900 text-sm tracking-tight">{playerName}</span>
             {isActive && (
-              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-[#739552]/20 text-[#82aa5a] border border-[#739552]/30 flex items-center gap-1">
-                <Hourglass size={10} className="animate-spin text-[#82aa5a]" />
-                Ticking
+              <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-[#739552]/15 text-[#5f7d41] border border-[#739552]/30 flex items-center gap-1">
+                <Hourglass size={10} className="animate-spin text-[#739552]" />
+                Live
               </span>
             )}
           </div>
           {materialAdvantage !== undefined && materialAdvantage > 0 && (
-            <span className="text-xs font-semibold text-[#82aa5a]">+{materialAdvantage}</span>
+            <span className="text-xs font-bold text-[#5f7d41]">+{materialAdvantage}</span>
           )}
         </div>
       </div>
@@ -100,19 +100,19 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
       {/* Prominent High-Contrast Timer Box */}
       <div className="flex items-center gap-2">
         <div
-          className={`px-3.5 py-1.5 rounded-lg font-mono text-xl sm:text-2xl font-black tracking-widest flex items-center gap-2 transition-all ${
+          className={`px-3.5 py-1.5 rounded-lg font-mono text-xl sm:text-2xl font-black tracking-wider flex items-center gap-2 transition-all ${
             isCritical
-              ? 'bg-rose-950/80 text-rose-300 animate-pulse border-2 border-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.4)]'
+              ? 'bg-rose-50 text-rose-600 animate-pulse border-2 border-rose-500 shadow-md'
               : isLowTime
-              ? 'bg-amber-950/70 text-amber-300 border-2 border-amber-500/60'
+              ? 'bg-amber-50 text-amber-700 border-2 border-amber-500'
               : isActive
-              ? 'bg-[#161512] text-[#edebe8] border-2 border-[#739552] shadow-inner'
-              : 'bg-[#161512]/80 text-stone-400 border border-[#33302a]'
+              ? 'bg-white text-stone-900 border-2 border-[#739552] shadow-sm'
+              : 'bg-stone-50 text-stone-600 border border-stone-200'
           }`}
         >
           <Clock
             size={16}
-            className={isActive ? 'text-[#739552] animate-pulse' : 'text-stone-500'}
+            className={isActive ? 'text-[#739552] animate-pulse' : 'text-stone-400'}
           />
           <span>{formatTime(displayMs)}</span>
         </div>

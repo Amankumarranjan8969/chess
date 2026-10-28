@@ -27,7 +27,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
 }) => {
   const [selectedColor, setSelectedColor] = useState<Color>(initialColor);
   const [selectedDifficulty, setSelectedDifficulty] = useState<AIDifficulty>(initialDifficulty);
-  const [selectedTimeIdx, setSelectedTimeIdx] = useState<number>(2); // 5 | 3 default
+  const [selectedTimeIdx, setSelectedTimeIdx] = useState<number>(2);
 
   if (!isOpen) return null;
 
@@ -41,19 +41,19 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md bg-[#21201d] border border-[#33302a] rounded-2xl p-6 shadow-2xl flex flex-col gap-5 text-[#edebe8]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-md bg-white border border-stone-200 rounded-2xl p-6 shadow-2xl flex flex-col gap-5 text-stone-900">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#33302a]">
+        <div className="flex items-center justify-between pb-3 border-b border-stone-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#739552]/25 border border-[#739552]/40 flex items-center justify-center text-[#739552]">
+            <div className="w-8 h-8 rounded-lg bg-[#739552]/15 border border-[#739552]/30 flex items-center justify-center text-[#739552]">
               <Bot size={18} />
             </div>
-            <h3 className="font-bold text-base text-white">New Game vs Computer</h3>
+            <h3 className="font-bold text-base text-stone-900">New Game vs Computer</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-[#2d2b27] text-stone-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-800 transition-colors"
           >
             <X size={18} />
           </button>
@@ -61,7 +61,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
 
         {/* 1. Choose Side */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+          <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">
             1. Play As
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -69,30 +69,30 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
               onClick={() => setSelectedColor('w')}
               className={`py-2.5 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition-all ${
                 selectedColor === 'w'
-                  ? 'bg-[#fdfdfd] text-[#1a1917] border-white shadow-lg'
-                  : 'bg-[#262421] text-stone-300 border-[#38342e] hover:border-stone-500'
+                  ? 'bg-stone-900 text-white border-stone-900 shadow-md'
+                  : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
               }`}
             >
               <div className="w-3.5 h-3.5 rounded-full bg-white border border-stone-400 shadow-sm" />
-              White (Moves 1st)
+              White (First Move)
             </button>
             <button
               onClick={() => setSelectedColor('b')}
               className={`py-2.5 px-4 rounded-xl border font-bold text-xs flex items-center justify-center gap-2 transition-all ${
                 selectedColor === 'b'
-                  ? 'bg-[#161512] text-white border-stone-400 shadow-lg'
-                  : 'bg-[#262421] text-stone-300 border-[#38342e] hover:border-stone-500'
+                  ? 'bg-stone-900 text-white border-stone-900 shadow-md'
+                  : 'bg-stone-50 text-stone-700 border-stone-200 hover:bg-stone-100'
               }`}
             >
-              <div className="w-3.5 h-3.5 rounded-full bg-[#161512] border border-stone-600 shadow-sm" />
-              Black (Moves 2nd)
+              <div className="w-3.5 h-3.5 rounded-full bg-stone-900 border border-stone-600 shadow-sm" />
+              Black (Second Move)
             </button>
           </div>
         </div>
 
         {/* 2. Choose Difficulty */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+          <label className="text-xs font-bold text-stone-500 uppercase tracking-wider">
             2. Engine Difficulty
           </label>
           <div className="grid grid-cols-3 gap-2">
@@ -102,8 +102,8 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
                 onClick={() => setSelectedDifficulty(d)}
                 className={`py-2 rounded-xl text-xs font-bold border capitalize transition-all ${
                   selectedDifficulty === d
-                    ? 'bg-[#739552] border-[#739552] text-white shadow-md'
-                    : 'bg-[#262421] border-[#38342e] text-stone-400 hover:text-stone-200'
+                    ? 'bg-[#739552] border-[#739552] text-white shadow-sm'
+                    : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
                 }`}
               >
                 {d}
@@ -114,9 +114,9 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
 
         {/* 3. Choose Time Control */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-semibold text-stone-400 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-xs font-bold text-stone-500 uppercase tracking-wider flex items-center gap-1.5">
             <Clock size={13} />
-            3. Clock Time Control
+            3. Time Control
           </label>
           <div className="grid grid-cols-2 gap-2">
             {PRESET_TIMES.map((item, idx) => (
@@ -125,12 +125,12 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
                 onClick={() => setSelectedTimeIdx(idx)}
                 className={`py-2 px-3 rounded-xl border text-left transition-all ${
                   selectedTimeIdx === idx
-                    ? 'bg-[#739552]/20 border-[#739552] text-[#82aa5a]'
-                    : 'bg-[#262421] border-[#38342e] text-stone-400 hover:text-stone-200'
+                    ? 'bg-[#739552]/10 border-[#739552] text-[#5f7d41]'
+                    : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
                 }`}
               >
-                <div className="font-bold text-xs text-white flex items-center gap-1">
-                  <Zap size={11} className={selectedTimeIdx === idx ? 'text-[#82aa5a]' : 'text-stone-500'} />
+                <div className="font-bold text-xs text-stone-900 flex items-center gap-1">
+                  <Zap size={11} className={selectedTimeIdx === idx ? 'text-[#739552]' : 'text-stone-400'} />
                   {item.label}
                 </div>
                 <div className="text-[10px] text-stone-500">{item.sub}</div>
@@ -142,7 +142,7 @@ export const NewGameModal: React.FC<NewGameModalProps> = ({
         {/* Start Game Button */}
         <button
           onClick={handleStart}
-          className="w-full py-3.5 rounded-xl bg-[#739552] hover:bg-[#648346] text-white font-bold text-sm uppercase tracking-wider transition-all shadow-lg shadow-[#739552]/25 flex items-center justify-center gap-2 hover:scale-[1.02]"
+          className="w-full py-3.5 rounded-xl bg-[#739552] hover:bg-[#648346] text-white font-bold text-sm uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 hover:scale-[1.01]"
         >
           <Play size={16} fill="white" /> Start Game
         </button>

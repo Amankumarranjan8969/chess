@@ -34,14 +34,14 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({
   const bottomPercent = orientation === 'w' ? whitePercent : 100 - whitePercent;
 
   return (
-    <div className="relative w-7 h-full max-h-[600px] bg-[#161512] border border-[#33302a] rounded-lg overflow-hidden flex flex-col shadow-inner select-none">
+    <div className="relative w-6 h-full max-h-[600px] bg-white border border-stone-300 rounded-lg overflow-hidden flex flex-col shadow-sm select-none">
       {/* Top Half (Black side if White orientation) */}
       <div
         style={{ height: `${topPercent}%` }}
-        className="w-full bg-[#2b2723] transition-all duration-300 ease-out flex items-start justify-center pt-2"
+        className="w-full bg-[#292524] transition-all duration-300 ease-out flex items-start justify-center pt-2"
       >
-        {topPercent >= 18 && (
-          <span className="text-[10px] font-mono font-black text-stone-300">
+        {topPercent >= 16 && (
+          <span className="text-[10px] font-mono font-black text-stone-200">
             {scoreCentipawns < 0 ? scoreText : ''}
           </span>
         )}
@@ -50,10 +50,10 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({
       {/* Bottom Half (White side if White orientation) */}
       <div
         style={{ height: `${bottomPercent}%` }}
-        className="w-full bg-[#fdfdfd] transition-all duration-300 ease-out flex items-end justify-center pb-2"
+        className="w-full bg-[#ffffff] transition-all duration-300 ease-out flex items-end justify-center pb-2"
       >
-        {bottomPercent >= 18 && (
-          <span className="text-[10px] font-mono font-black text-[#1a1917]">
+        {bottomPercent >= 16 && (
+          <span className="text-[10px] font-mono font-black text-stone-900">
             {scoreCentipawns >= 0 ? scoreText : ''}
           </span>
         )}

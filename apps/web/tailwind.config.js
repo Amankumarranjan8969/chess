@@ -8,14 +8,14 @@ export default {
     extend: {
       colors: {
         surface: {
-          DEFAULT: '#161512',
-          panel: '#21201d',
-          card: '#262421',
-          hover: '#2d2b27',
+          DEFAULT: '#f5f5f4',
+          panel: '#ffffff',
+          card: '#fafaf9',
+          hover: '#f0f0ee',
         },
         border: {
-          dim: '#33302a',
-          hover: '#47433c',
+          dim: '#e7e5e4',
+          hover: '#d6d3d1',
         },
         board: {
           light: '#ebecd0',
@@ -26,8 +26,8 @@ export default {
         chess: {
           green: '#739552',
           'green-hover': '#648346',
-          gold: '#e5a93b',
-          'gold-hover': '#cf942b',
+          gold: '#d97706',
+          'gold-hover': '#b45309',
         }
       }
     },

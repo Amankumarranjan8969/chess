@@ -52,52 +52,44 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className={`relative w-full max-w-md p-6 sm:p-8 rounded-2xl border text-center shadow-2xl overflow-hidden transition-all transform scale-100 ${
+        className={`relative w-full max-w-md p-6 sm:p-8 rounded-2xl border text-center shadow-2xl overflow-hidden bg-white ${
           userWon
-            ? 'bg-[#1e1c18] border-[#e5a93b]/70 shadow-[0_0_50px_rgba(229,169,59,0.3)]'
+            ? 'border-amber-300 shadow-[0_10px_40px_rgba(217,119,6,0.15)]'
             : userLost
-            ? 'bg-[#1e1818] border-rose-600/70 shadow-[0_0_50px_rgba(225,29,72,0.3)]'
-            : 'bg-[#1d1d1b] border-stone-600 shadow-[0_0_40px_rgba(0,0,0,0.6)]'
+            ? 'border-rose-300 shadow-[0_10px_40px_rgba(225,29,72,0.15)]'
+            : 'border-stone-300 shadow-[0_10px_40px_rgba(0,0,0,0.1)]'
         }`}
       >
-        {/* Glow backdrop */}
-        <div
-          className={`absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-3xl opacity-30 pointer-events-none ${
-            userWon ? 'bg-[#e5a93b]' : userLost ? 'bg-rose-600' : 'bg-stone-400'
-          }`}
-        />
-
-        {/* Icon & Title */}
         <div className="relative flex flex-col items-center">
           <div
-            className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 shadow-xl border-2 ${
+            className={`w-20 h-20 rounded-full flex items-center justify-center mb-4 shadow-lg border-2 ${
               userWon
-                ? 'bg-[#e5a93b]/20 border-[#e5a93b] text-[#e5a93b]'
+                ? 'bg-amber-50 border-amber-400 text-amber-600'
                 : userLost
-                ? 'bg-rose-950/40 border-rose-500 text-rose-400'
-                : 'bg-stone-800 border-stone-500 text-stone-300'
+                ? 'bg-rose-50 border-rose-400 text-rose-600'
+                : 'bg-stone-50 border-stone-400 text-stone-600'
             }`}
           >
             {userWon ? (
-              <Trophy size={42} className="animate-bounce" />
+              <Trophy size={40} className="animate-bounce" />
             ) : userLost ? (
-              <Skull size={42} />
+              <Skull size={40} />
             ) : (
-              <Handshake size={42} />
+              <Handshake size={40} />
             )}
           </div>
 
           <h2
-            className={`text-3xl sm:text-4xl font-black uppercase tracking-wider mb-1 ${
-              userWon ? 'text-[#e5a93b]' : userLost ? 'text-rose-400' : 'text-stone-200'
+            className={`text-3xl font-black uppercase tracking-tight mb-1 ${
+              userWon ? 'text-amber-700' : userLost ? 'text-rose-600' : 'text-stone-800'
             }`}
           >
             {userWon ? 'Victory!' : userLost ? 'Defeat' : 'Draw'}
           </h2>
 
-          <p className="text-stone-300 text-base font-semibold mb-2">
+          <p className="text-stone-600 text-base font-semibold mb-2">
             {userWon
               ? 'You won the match!'
               : userLost
@@ -105,26 +97,22 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               : 'The game ended in a draw'}
           </p>
 
-          <div className="inline-block px-3 py-1 rounded-full bg-[#161512] border border-[#33302a] text-xs font-mono font-bold text-stone-400 mb-6">
+          <div className="inline-block px-3.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-xs font-mono font-bold text-stone-700 mb-6">
             Result: {result} • {formatReason(endReason)}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col w-full gap-3">
+          <div className="flex flex-col w-full gap-2.5">
             <button
               onClick={onPlayAgain}
-              className={`w-full py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide uppercase transition-all shadow-lg flex items-center justify-center gap-2 ${
-                userWon
-                  ? 'bg-[#739552] hover:bg-[#648346] text-white shadow-[#739552]/30 hover:scale-[1.02]'
-                  : 'bg-[#e5a93b] hover:bg-[#cf942b] text-slate-950 shadow-[#e5a93b]/20 hover:scale-[1.02]'
-              }`}
+              className="w-full py-3.5 px-6 rounded-xl font-bold text-sm tracking-wide uppercase transition-all shadow-md bg-[#739552] hover:bg-[#648346] text-white flex items-center justify-center gap-2 hover:scale-[1.01]"
             >
               <RotateCcw size={16} /> Play Again
             </button>
 
             <button
               onClick={onReviewBoard}
-              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-stone-300 hover:text-white bg-[#262421] hover:bg-[#312e2b] border border-[#38342e] transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs text-stone-700 hover:text-black bg-stone-100 hover:bg-stone-200 border border-stone-200 transition-colors flex items-center justify-center gap-1.5"
             >
               <Eye size={14} /> Review Board
             </button>
