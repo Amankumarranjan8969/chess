@@ -67,6 +67,10 @@ npm run build --workspace=@chess/core
 npm run build --workspace=@chess/server
 npm run build --workspace=@chess/web
 ```
+## Author 
+```bash
+AMAN KUMAR RANJAN
+```
 
 ---
 
