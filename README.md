@@ -67,11 +67,13 @@ npm run build --workspace=@chess/core
 npm run build --workspace=@chess/server
 npm run build --workspace=@chess/web
 ```
-## Author 
-```bash
-AMAN KUMAR RANJAN
-```
 
+## 📜 License & Author 
+
+This project is licensed under the **MIT License** - see the [`LICENSE`](LICENSE) file for details.
+
+Developed with ❤️ by **Aman Kumar Ranjan (23010301)** for **CHESS**.
+=======
 ---
 
 ## 🛡️ License
