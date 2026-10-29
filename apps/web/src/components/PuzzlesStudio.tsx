@@ -24,13 +24,56 @@ import {
 } from 'lucide-react';
 
 export const PuzzlesStudio: React.FC = () => {
-  const { puzzles, activePuzzleId, user, solvePuzzle, preferences, navigateTo } = usePlatform();
+  const { puzzles, activePuzzleId, setActivePuzzleId, user, solvePuzzle, preferences, navigateTo } =
+    usePlatform();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [currentPuzzleIdx, setCurrentPuzzleIdx] = useState<number>(0);
 
-  // Filtered puzzle list
+  // Track unique seen puzzles so every click serves an unseen puzzle
+  const [seenPuzzleIds, setSeenPuzzleIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('chess_seen_puzzle_ids');
+      return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+    } catch {
+      return new Set<string>();
+    }
+  });
+
+  const markPuzzleSeen = (id: string) => {
+    setSeenPuzzleIds((prev) => {
+      if (prev.has(id)) return prev;
+      const updated = new Set(prev);
+      updated.add(id);
+      try {
+        localStorage.setItem('chess_seen_puzzle_ids', JSON.stringify(Array.from(updated)));
+      } catch {
+        // ignore storage errors
+      }
+      return updated;
+    });
+  };
+
+  // Counts across all 4 tactical difficulty tiers
+  const difficultyCounts = useMemo(() => {
+    const counts = {
+      all: puzzles.length,
+      beginner: 0,
+      intermediate: 0,
+      advanced: 0,
+      master: 0,
+    };
+    puzzles.forEach((p) => {
+      if (p.difficulty === 'beginner') counts.beginner++;
+      else if (p.difficulty === 'intermediate') counts.intermediate++;
+      else if (p.difficulty === 'advanced') counts.advanced++;
+      else if (p.difficulty === 'master') counts.master++;
+    });
+    return counts;
+  }, [puzzles]);
+
+  // Filtered puzzle list based on difficulty tier and category
   const filteredPuzzles = useMemo(() => {
     return puzzles.filter((p) => {
       const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
@@ -39,13 +82,26 @@ export const PuzzlesStudio: React.FC = () => {
     });
   }, [puzzles, selectedCategory, selectedDifficulty]);
 
+  // Unseen puzzles count for the current filter
+  const unseenCount = useMemo(() => {
+    return filteredPuzzles.filter((p) => !seenPuzzleIds.has(p.id)).length;
+  }, [filteredPuzzles, seenPuzzleIds]);
+
+  // Active puzzle: ensure it resolves within filtered list and does not get stuck
   const activePuzzle: Puzzle = useMemo(() => {
     if (activePuzzleId) {
-      const found = puzzles.find((p) => p.id === activePuzzleId);
-      if (found) return found;
+      const matchInFiltered = filteredPuzzles.find((p) => p.id === activePuzzleId);
+      if (matchInFiltered) return matchInFiltered;
     }
-    return filteredPuzzles[currentPuzzleIdx] || puzzles[0];
+    return filteredPuzzles[currentPuzzleIdx] || filteredPuzzles[0] || puzzles[0];
   }, [puzzles, activePuzzleId, filteredPuzzles, currentPuzzleIdx]);
+
+  // Mark active puzzle as seen
+  useEffect(() => {
+    if (activePuzzle?.id) {
+      markPuzzleSeen(activePuzzle.id);
+    }
+  }, [activePuzzle?.id]);
 
   // Game state for active puzzle
   const [puzzleGame, setPuzzleGame] = useState<ChessGame>(
@@ -230,12 +286,67 @@ export const PuzzlesStudio: React.FC = () => {
   };
 
   const handleNextPuzzle = () => {
-    setCurrentPuzzleIdx((prev) => (prev + 1) % filteredPuzzles.length);
+    if (filteredPuzzles.length === 0) return;
+
+    // Current index in filteredPuzzles
+    const currIdx = filteredPuzzles.findIndex((p) => p.id === activePuzzle.id);
+    const startIdx = currIdx >= 0 ? currIdx : 0;
+
+    // Find the next UNSEEN puzzle in filteredPuzzles
+    let nextIdx = -1;
+    for (let offset = 1; offset < filteredPuzzles.length; offset++) {
+      const candidateIdx = (startIdx + offset) % filteredPuzzles.length;
+      const candidate = filteredPuzzles[candidateIdx];
+      if (!seenPuzzleIds.has(candidate.id)) {
+        nextIdx = candidateIdx;
+        break;
+      }
+    }
+
+    // If all have been seen, smoothly loop sequentially to next unique puzzle
+    if (nextIdx === -1) {
+      nextIdx = (startIdx + 1) % filteredPuzzles.length;
+    }
+
+    const nextPuz = filteredPuzzles[nextIdx];
+    setCurrentPuzzleIdx(nextIdx);
+    setActivePuzzleId(nextPuz.id);
+    markPuzzleSeen(nextPuz.id);
   };
 
   const handlePrevPuzzle = () => {
-    setCurrentPuzzleIdx((prev) => (prev - 1 + filteredPuzzles.length) % filteredPuzzles.length);
+    if (filteredPuzzles.length === 0) return;
+    const currIdx = filteredPuzzles.findIndex((p) => p.id === activePuzzle.id);
+    const startIdx = currIdx >= 0 ? currIdx : 0;
+    const prevIdx = (startIdx - 1 + filteredPuzzles.length) % filteredPuzzles.length;
+    const prevPuz = filteredPuzzles[prevIdx];
+    setCurrentPuzzleIdx(prevIdx);
+    setActivePuzzleId(prevPuz.id);
+    markPuzzleSeen(prevPuz.id);
   };
+
+  const handleSelectDifficulty = (level: string) => {
+    setSelectedDifficulty(level);
+    const matching = puzzles.filter((p) => {
+      const matchCat = selectedCategory === 'all' || p.category === selectedCategory;
+      const matchDiff = level === 'all' || p.difficulty === level;
+      return matchCat && matchDiff;
+    });
+
+    if (matching.length > 0) {
+      const unseenIdx = matching.findIndex((p) => !seenPuzzleIds.has(p.id));
+      const targetIdx = unseenIdx >= 0 ? unseenIdx : 0;
+      const targetPuz = matching[targetIdx];
+      setCurrentPuzzleIdx(targetIdx);
+      setActivePuzzleId(targetPuz.id);
+      markPuzzleSeen(targetPuz.id);
+    }
+  };
+
+  const currentPuzzleNumber = useMemo(() => {
+    const idx = filteredPuzzles.findIndex((p) => p.id === activePuzzle.id);
+    return idx >= 0 ? idx + 1 : currentPuzzleIdx + 1;
+  }, [filteredPuzzles, activePuzzle.id, currentPuzzleIdx]);
 
   const pStats = user.ratings.puzzles;
 
@@ -283,6 +394,60 @@ export const PuzzlesStudio: React.FC = () => {
             </span>
             <span className="text-xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">
               {pStats.solvedCount}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. PROMINENT LEVEL SELECTOR BAR */}
+      <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl p-3.5 sm:p-4 shadow-sm flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-stone-500 dark:text-stone-400 mr-1 flex items-center gap-1">
+            <Award size={14} className="text-[#739552]" /> Level:
+          </span>
+          {[
+            { id: 'all', label: 'All Levels', badge: difficultyCounts.all, emoji: '🌟' },
+            { id: 'beginner', label: 'Beginner (<1100)', badge: difficultyCounts.beginner, emoji: '🟢' },
+            { id: 'intermediate', label: 'Intermediate (1100-1600)', badge: difficultyCounts.intermediate, emoji: '🟡' },
+            { id: 'advanced', label: 'Advanced (1600-2000)', badge: difficultyCounts.advanced, emoji: '🟠' },
+            { id: 'master', label: 'Master (2000+)', badge: difficultyCounts.master, emoji: '🟣' },
+          ].map((lvl) => {
+            const isActive = selectedDifficulty === lvl.id;
+            return (
+              <button
+                key={lvl.id}
+                onClick={() => handleSelectDifficulty(lvl.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  isActive
+                    ? 'bg-[#739552] text-white shadow-sm ring-1 ring-[#739552]'
+                    : 'bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 shadow-xs'
+                }`}
+              >
+                <span>{lvl.emoji}</span>
+                <span>{lvl.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                    isActive
+                      ? 'bg-white/20 text-white font-extrabold'
+                      : 'bg-stone-100 dark:bg-stone-700 text-stone-600 dark:text-stone-400'
+                  }`}
+                >
+                  {lvl.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Level Progress & Unseen Counter */}
+        <div className="flex items-center gap-2">
+          <div className="text-xs font-mono font-bold text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xs flex items-center gap-2">
+            <span>
+              Puzzle <strong className="text-[#739552] font-extrabold">#{currentPuzzleNumber}</strong> of{' '}
+              {filteredPuzzles.length}
+            </span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-[#5f7d41] dark:text-emerald-300 border border-[#739552]/30">
+              {unseenCount} unseen
             </span>
           </div>
         </div>
@@ -503,12 +668,13 @@ export const PuzzlesStudio: React.FC = () => {
                 {[
                   { id: 'all', label: 'All Levels' },
                   { id: 'beginner', label: 'Beginner (<1100)' },
-                  { id: 'intermediate', label: 'Intermediate (1100-1500)' },
-                  { id: 'advanced', label: 'Advanced (1500+)' },
+                  { id: 'intermediate', label: 'Intermediate (1100-1600)' },
+                  { id: 'advanced', label: 'Advanced (1600-2000)' },
+                  { id: 'master', label: 'Master (2000+)' },
                 ].map((d) => (
                   <button
                     key={d.id}
-                    onClick={() => setSelectedDifficulty(d.id)}
+                    onClick={() => handleSelectDifficulty(d.id)}
                     className={`p-2 rounded-xl text-xs font-bold transition-all text-center ${
                       selectedDifficulty === d.id
                         ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 shadow-sm'

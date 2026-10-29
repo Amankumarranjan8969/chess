@@ -9,8 +9,20 @@ const SERVER_URL =
     ? `${window.location.protocol}//${window.location.hostname}:4000`
     : 'http://localhost:4000');
 
+function getOrCreatePlayerKey(): string {
+  if (typeof window === 'undefined') return 'server-dummy-key-00000000';
+  const existing = sessionStorage.getItem('chess_player_key');
+  if (existing && existing.length >= 16) return existing;
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  const key = Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
+  sessionStorage.setItem('chess_player_key', key);
+  return key;
+}
+
 export function useChessSocket() {
   const socketRef = useRef<Socket | null>(null);
+  const playerKeyRef = useRef<string>(getOrCreatePlayerKey());
   const [connected, setConnected] = useState(false);
   const [roomState, setRoomState] = useState<any | null>(null);
   const [playerColor, setPlayerColor] = useState<Color | 'spectator' | null>(null);
@@ -88,6 +100,10 @@ export function useChessSocket() {
       if (data.state) setRoomState(data.state);
     });
 
+    socket.on('game:error', (data) => {
+      if (data?.error) setErrorMessage(data.error);
+    });
+
     return () => {
       socket.disconnect();
     };
@@ -99,7 +115,7 @@ export function useChessSocket() {
         if (!socketRef.current) return reject(new Error('No socket connection'));
         socketRef.current.emit(
           'room:create',
-          { timeControl, playerName, preferredColor },
+          { timeControl, playerName, preferredColor, playerKey: playerKeyRef.current },
           (res: any) => {
             if (res.success && res.roomId) {
               resolve(res.roomId);
@@ -116,13 +132,17 @@ export function useChessSocket() {
   const joinRoom = useCallback((roomId: string, playerName: string) => {
     return new Promise<void>((resolve, reject) => {
       if (!socketRef.current) return reject(new Error('No socket connection'));
-      socketRef.current.emit('room:join', { roomId, playerName }, (res: any) => {
-        if (res.success) {
-          resolve();
-        } else {
-          reject(new Error(res.error || 'Failed to join room'));
+      socketRef.current.emit(
+        'room:join',
+        { roomId, playerName, playerKey: playerKeyRef.current },
+        (res: any) => {
+          if (res.success) {
+            resolve();
+          } else {
+            reject(new Error(res.error || 'Failed to join room'));
+          }
         }
-      });
+      );
     });
   }, []);
 
@@ -131,7 +151,6 @@ export function useChessSocket() {
     socketRef.current.emit('game:move', {
       roomId: roomState.roomId,
       move,
-      clientTimestamp: Date.now(),
     });
   }, [roomState?.roomId]);
 

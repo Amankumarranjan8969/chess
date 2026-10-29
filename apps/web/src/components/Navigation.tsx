@@ -28,6 +28,10 @@ export const Navigation: React.FC = () => {
     activeSection,
     navigateTo,
     user,
+    isAuthenticated,
+    isSuperAdmin,
+    openAuthModal,
+    logout,
     messages,
     preferences,
     updatePreferences,
@@ -46,6 +50,14 @@ export const Navigation: React.FC = () => {
     { id: 'watch', label: 'Watch', icon: <Tv size={18} /> },
     { id: 'more', label: 'More', icon: <MoreHorizontal size={18} />, badge: unreadCount },
   ];
+
+  if (isSuperAdmin) {
+    navItems.push({
+      id: 'admin',
+      label: 'Admin',
+      icon: <Shield size={18} className="text-amber-500" />,
+    });
+  }
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -184,120 +196,159 @@ export const Navigation: React.FC = () => {
               {isDark ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
             </button>
 
-            {/* User Profile Mini Card with Dropdown Menu */}
-            <div className="relative" ref={profileMenuRef}>
-              <button
-                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-2 p-1 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-left group"
-                title="Account Menu"
-              >
-                <div className="relative">
-                  <img
-                    src={user.avatar}
-                    alt={user.username}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-[#739552]/40 group-hover:ring-[#739552] transition-all"
-                  />
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-stone-900" />
-                </div>
-                <div className="hidden xl:flex flex-col">
-                  <span className="text-xs font-bold leading-tight flex items-center gap-1 text-stone-900 dark:text-stone-100">
-                    {user.title && (
-                      <span className="text-[10px] font-extrabold px-1 py-0.2 bg-amber-500 text-white rounded">
-                        {user.title}
-                      </span>
-                    )}
-                    <span>{user.username}</span>
-                    <ChevronDown size={12} className="text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-200 transition-transform" />
-                  </span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
-                    Rapid: {user.ratings.rapid.rating}
-                  </span>
-                </div>
-              </button>
-
-              {/* Profile Dropdown Menu */}
-              {isProfileMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                  {/* User Profile Header in Dropdown */}
-                  <div className="px-4 py-3 border-b border-stone-100 dark:border-stone-800 flex items-center gap-3">
+            {/* User Profile Mini Card or Sign In Button */}
+            {isAuthenticated ? (
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 p-1 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors text-left group"
+                  title="Account Menu"
+                >
+                  <div className="relative">
                     <img
                       src={user.avatar}
                       alt={user.username}
-                      className="w-10 h-10 rounded-full object-cover ring-2 ring-[#739552]"
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-[#739552]/40 group-hover:ring-[#739552] transition-all"
                     />
-                    <div className="overflow-hidden">
-                      <div className="flex items-center gap-1.5">
-                        {user.title && (
-                          <span className="text-[9px] font-extrabold px-1 py-0.2 bg-amber-500 text-white rounded">
-                            {user.title}
-                          </span>
-                        )}
-                        <span className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
-                          {user.username}
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white dark:border-stone-900" />
+                  </div>
+                  <div className="hidden xl:flex flex-col">
+                    <span className="text-xs font-bold leading-tight flex items-center gap-1 text-stone-900 dark:text-stone-100">
+                      {user.title && (
+                        <span
+                          className={`text-[9px] font-extrabold px-1 py-0.2 rounded ${
+                            isSuperAdmin
+                              ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-xs'
+                              : 'bg-amber-500 text-white'
+                          }`}
+                        >
+                          {user.title}
                         </span>
-                      </div>
-                      <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">
-                        {user.email}
-                      </span>
-                      <div className="flex items-center gap-2 mt-1 text-[10px] font-mono font-bold text-[#739552]">
-                        <span>⚡ {user.ratings.rapid.rating} Rapid</span>
-                        <span>•</span>
-                        <span>🔥 {user.ratings.blitz.rating} Blitz</span>
+                      )}
+                      <span>{user.username}</span>
+                      <ChevronDown
+                        size={12}
+                        className="text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-200 transition-transform"
+                      />
+                    </span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">
+                      {isSuperAdmin ? '⚡ Super Admin' : `Rapid: ${user.ratings.rapid.rating}`}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                {isProfileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150 text-stone-900 dark:text-white">
+                    {/* User Profile Header in Dropdown */}
+                    <div className="px-4 py-3 border-b border-stone-100 dark:border-stone-800 flex items-center gap-3">
+                      <img
+                        src={user.avatar}
+                        alt={user.username}
+                        className="w-10 h-10 rounded-full object-cover ring-2 ring-[#739552]"
+                      />
+                      <div className="overflow-hidden">
+                        <div className="flex items-center gap-1.5">
+                          {user.title && (
+                            <span className="text-[9px] font-extrabold px-1 py-0.2 bg-amber-500 text-white rounded">
+                              {user.title}
+                            </span>
+                          )}
+                          <span className="text-xs font-bold text-stone-900 dark:text-stone-100 truncate">
+                            {user.username}
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-stone-500 dark:text-stone-400 block truncate">
+                          {user.email}
+                        </span>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] font-mono font-bold text-[#739552]">
+                          <span>⚡ {user.ratings.rapid.rating} Rapid</span>
+                          <span>•</span>
+                          <span>🔥 {user.ratings.blitz.rating} Blitz</span>
+                        </div>
                       </div>
                     </div>
+
+                    {/* Menu Options */}
+                    <div className="py-1">
+                      {isSuperAdmin && (
+                        <button
+                          onClick={() => {
+                            setIsProfileMenuOpen(false);
+                            navigateTo('admin');
+                          }}
+                          className="w-full px-4 py-2 text-left text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 flex items-center gap-2.5 transition-colors"
+                        >
+                          <Shield size={15} className="text-amber-500" />
+                          <span>Super Admin Console</span>
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateTo('more');
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2.5 transition-colors"
+                      >
+                        <User size={15} className="text-[#739552]" />
+                        <span>Profile & Account</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateTo('home');
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2.5 transition-colors"
+                      >
+                        <BarChart2 size={15} className="text-[#739552]" />
+                        <span>Performance Statistics</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigateTo('more');
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2.5 transition-colors"
+                      >
+                        <Settings size={15} className="text-[#739552]" />
+                        <span>Application Settings</span>
+                      </button>
+                    </div>
+
+                    <div className="border-t border-stone-100 dark:border-stone-800 pt-1 mt-1">
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          logout();
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2.5 transition-colors"
+                      >
+                        <LogOut size={15} />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
                   </div>
-
-                  {/* Menu Options */}
-                  <div className="py-1">
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        navigateTo('more');
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2.5 transition-colors"
-                    >
-                      <User size={15} className="text-[#739552]" />
-                      <span>Profile & Account</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        navigateTo('home');
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2.5 transition-colors"
-                    >
-                      <BarChart2 size={15} className="text-[#739552]" />
-                      <span>Performance Statistics</span>
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        navigateTo('more');
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2.5 transition-colors"
-                    >
-                      <Settings size={15} className="text-[#739552]" />
-                      <span>Application Settings</span>
-                    </button>
-                  </div>
-
-                  <div className="border-t border-stone-100 dark:border-stone-800 pt-1 mt-1">
-                    <button
-                      onClick={() => {
-                        setIsProfileMenuOpen(false);
-                        alert(`Logged out from ${user.username}. Guest mode active.`);
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2.5 transition-colors"
-                    >
-                      <LogOut size={15} />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => openAuthModal('login')}
+                  className="px-3 py-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 hover:bg-stone-50 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 font-bold text-xs transition-all shadow-xs"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={() => openAuthModal('register')}
+                  className="px-3 py-1.5 rounded-xl bg-[#739552] hover:bg-[#648346] text-white font-bold text-xs transition-all shadow-sm"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </header>

@@ -7,6 +7,8 @@ interface GameOverModalProps {
   result: GameResult;
   endReason: EndReason | null;
   userColor: Color;
+  ratingChange?: number;
+  newRating?: number;
   onPlayAgain: () => void;
   onReviewBoard: () => void;
   onOpenGameReview?: () => void;
@@ -17,6 +19,8 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
   result,
   endReason,
   userColor,
+  ratingChange,
+  newRating,
   onPlayAgain,
   onReviewBoard,
   onOpenGameReview,
@@ -103,9 +107,32 @@ export const GameOverModal: React.FC<GameOverModalProps> = ({
               : 'The game ended in a draw'}
           </p>
 
-          <div className="inline-block px-3.5 py-1 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold text-stone-700 dark:text-stone-300 mb-6 shadow-xs">
+          <div className="inline-block px-3.5 py-1 rounded-full bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono font-bold text-stone-700 dark:text-stone-300 mb-3 shadow-xs">
             Result: {result} • {formatReason(endReason)}
           </div>
+
+          {/* Rating Change Badge */}
+          {ratingChange !== undefined && (
+            <div
+              className={`mb-5 px-4 py-2 rounded-2xl border text-xs font-bold flex items-center justify-center gap-2 shadow-xs ${
+                ratingChange > 0
+                  ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300'
+                  : ratingChange < 0
+                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300'
+                  : 'bg-stone-50 dark:bg-stone-800 border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300'
+              }`}
+            >
+              <span>Rating Change:</span>
+              <span className="font-mono text-sm font-extrabold">
+                {ratingChange > 0 ? `+${ratingChange}` : ratingChange} Elo
+              </span>
+              {newRating && (
+                <span className="opacity-80 font-mono text-xs">
+                  (New Rating: <strong>{newRating}</strong>)
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col w-full gap-2.5">

@@ -1,84 +1,75 @@
-# Grandmaster Arena: Full-Stack Chess Platform
+# ♟️ Grandmaster Arena: Production Chess Platform
 
-A production-grade, authoritative full-stack chess platform built strictly adhering to the architectural separation of concerns:
-- **Chess Engine / Rules Authority**: Understands chess rules, legal moves, special moves, FIDE draws, and state transitions (`packages/chess-core`).
-- **Computer Opponent**: Search-based minimax AI with alpha-beta pruning, piece-square tables, and move ordering (`packages/chess-core/src/ai`).
-- **Authoritative Online Backend**: Node.js + Express + Socket.IO server managing private rooms, turns, monotonic clocks, and move verification (`apps/server`).
-- **Interactive Frontend**: React 19 + TypeScript + Vite + Tailwind CSS featuring click-to-move, drag-and-drop, audio effects, smooth clock countdowns, and SAN move history (`apps/web`).
-- **Persistence Layer**: PostgreSQL schema with Prisma ORM (`apps/server/prisma/schema.prisma`).
+A production-grade, authoritative full-stack chess platform with an enterprise security model, real-time multiplayer over WebSockets, tournament evaluation engine, tactical puzzles database, progressive learning academy, and a Super Admin management command center.
 
 ---
 
-## Workspace Structure
+## 🏛️ Architecture & Separation of Concerns
 
-```
-chess/
-├── packages/
-│   └── chess-core/          # Authoritative rules, types, timers & Minimax AI
-│       ├── src/
-│       │   ├── types/       # Domain interfaces (Square, Color, Piece, DetailedMove, etc.)
-│       │   ├── rules/       # ChessGame engine wrapper & Perft test suite
-│       │   ├── clock/       # Monotonic ChessClock implementation
-│       │   ├── constants/   # Starting FEN, piece values & square maps
-│       │   └── ai/          # Minimax AI with Alpha-Beta pruning & PSTs
-│       └── dist/
-├── apps/
-│   ├── web/                 # React + TypeScript + Vite frontend
-│   │   ├── src/
-│   │   │   ├── components/  # Chessboard, ClockDisplay, MoveHistory, ChessPiece
-│   │   │   ├── hooks/       # useChessAI, useChessSocket
-│   │   │   ├── audio/       # Web Audio API sound effects synthesizer
-│   │   │   └── App.tsx      # Main application with Play vs Computer / Online / Pass & Play
-│   └── server/              # Authoritative real-time Node.js + Socket.IO backend
-│       ├── src/
-│       │   ├── game/        # GameRoom, RoomManager
-│       │   ├── sockets/     # Real-time WebSocket event gateway
-│       │   └── server.ts    # HTTP & Socket.IO server entrypoint
-│       └── prisma/
-│           └── schema.prisma# PostgreSQL relational schema (users, games, moves, ratings)
-└── package.json             # Root npm workspaces
-```
+* **Chess Rules Authority (`packages/chess-core`)**: Pure FIDE-compliant chess engine handling valid move generation, check/checkmate detection, castling rights, en passant, promotion, and FIDE draw claims (threefold, 50-move rule, insufficient material).
+* **Computer AI Opponent (`packages/chess-core/src/ai`)**: Search-based minimax engine with alpha-beta pruning, quiescence search, piece-square tables, and 4 difficulty tiers (Easy, Medium, Hard, and Grandmaster 2400+).
+* **Authoritative Multiplayer Server (`apps/server`)**: Real-time Node.js + Express + Socket.IO server enforcing server-side clock tracking, seat-key reconnections, sliding-window rate limiting, and scrypt password hashing.
+* **Modern Web Frontend (`apps/web`)**: React 19 + TypeScript + Vite + Tailwind CSS featuring responsive daylight/night mode, vector SVG pieces, live evaluation bar, interactive tactical puzzles, game review with blunder classification, and PGN export.
 
 ---
 
-## Getting Started
+## 🔒 Security Architecture
 
-### 1. Install Dependencies
+1. **Zero Secret Leakage**: No hardcoded passwords, private keys, or credentials in client bundles.
+2. **Server-Authoritative Clock**: Clocks run entirely on server time (`Date.now()`); client timestamps are ignored to prevent time manipulation.
+3. **Password Security**: Passwords hashed using Node.js `crypto.scrypt` with random 16-byte salts and `timingSafeEqual` comparison.
+4. **Token Security**: Session authorization verified via HMAC-SHA256 signed bearer tokens with session epoch invalidation on logout.
+5. **Denial-of-Service Protection**: Sliding-window rate limiters across socket events, room creation, authentication endpoints, and concurrent connection caps per IP.
+6. **Origin Isolation**: CORS and WebSocket access restricted to local LAN and authorized origins.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+* **Node.js**: v18.0.0 or higher
+* **npm**: v9.0.0 or higher
+
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### 2. Run Test Suite
-Verifies all 15 chess rules tests, en passant edge cases, castling through check, checkmate, stalemate, 3-fold repetition, and KiwiPete perft validation:
+### 3. Environment Configuration
+Copy `.env.example` to `.env` and set your secrets:
+```bash
+cp .env.example .env
+```
+
+### 4. Run Test Suites
 ```bash
 npm run test --workspace=@chess/core
 npm run test --workspace=@chess/server
 ```
 
-### 3. Launch Development Servers
-- Authoritative Backend (Port 4000):
+### 5. Launch Development Servers
+* **Authoritative Server** (`http://localhost:4000`):
   ```bash
-  npm run dev:server
+  npm run dev --workspace=@chess/server
   ```
-- React Frontend (Port 3000):
+* **React Web Application** (`http://localhost:3000`):
   ```bash
-  npm run dev:web
+  npm run dev --workspace=@chess/web
   ```
 
 ---
 
-## Implemented FIDE Rules Checklist
+## 📦 Production Build
 
-- [x] 8x8 Board & starting standard FEN
-- [x] Piece movement mechanics (Pawn single/double, Knight jumping, Rook, Bishop, Queen, King safety)
-- [x] En passant (only valid immediately on the next ply)
-- [x] Castling (Kingside and Queenside; disallowed if king or rook moved, when in check, or through check)
-- [x] Promotion to Queen, Rook, Bishop, or Knight
-- [x] Checkmate & Stalemate detection
-- [x] Threefold repetition (claimable)
-- [x] Fivefold repetition (automatic FIDE draw)
-- [x] Fifty-move rule (claimable)
-- [x] Seventy-five-move rule (automatic FIDE draw)
-- [x] Insufficient material dead positions & timeout insufficient material draw
-- [x] Authoritative monotonic clock countdown with increment and lag compensation
-- [x] Disconnect retention and state recovery over WebSockets
+```bash
+# Build core, server, and web workspaces
+npm run build --workspace=@chess/core
+npm run build --workspace=@chess/server
+npm run build --workspace=@chess/web
+```
+
+---
+
+## 🛡️ License
+
+MIT License. Designed and engineered for chess enthusiasts, coaches, and competitive players.

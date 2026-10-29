@@ -105,7 +105,7 @@ export class ChessClock {
   }
 
   private calculateRemaining(now: number): { whiteMs: number; blackMs: number } {
-    if (this.isPaused || !this.turnStartedAtMs || !this.activeColor) {
+    if (this.isPaused || this.turnStartedAtMs === null || !this.activeColor) {
       return { whiteMs: this.whiteMs, blackMs: this.blackMs };
     }
 

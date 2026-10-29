@@ -85,9 +85,27 @@ export const GameReviewStudio: React.FC = () => {
         }
         return prev + 1;
       });
+      setActiveTab('insight');
     }, 1400);
     return () => clearInterval(interval);
   }, [isPlaying, report]);
+
+  // Move row references for smooth instant auto-scroll into view without user scrolling
+  const moveItemRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const rightScrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll active move into view in timeline and reset right insights scroll to top
+  useEffect(() => {
+    if (currentMoveIdx >= 0 && moveItemRefs.current[currentMoveIdx]) {
+      moveItemRefs.current[currentMoveIdx]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+    if (rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = 0;
+    }
+  }, [currentMoveIdx]);
 
   // Reconstruct exact snapshot for currently selected position
   const { currentSnapshot, activeMove } = useMemo(() => {
@@ -129,6 +147,13 @@ export const GameReviewStudio: React.FC = () => {
     };
   }, [report, currentMoveIdx, game.initialFen, previewVariation]);
 
+  const selectMove = (idx: number) => {
+    setIsPlaying(false);
+    setPreviewVariation(false);
+    setCurrentMoveIdx(idx);
+    setActiveTab('insight');
+  };
+
   // Keyboard navigation (← and →)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -136,22 +161,14 @@ export const GameReviewStudio: React.FC = () => {
       if (!report) return;
 
       if (e.key === 'ArrowLeft') {
-        setCurrentMoveIdx((prev) => Math.max(-1, prev - 1));
-        setPreviewVariation(false);
+        selectMove(Math.max(-1, currentMoveIdx - 1));
       } else if (e.key === 'ArrowRight') {
-        setCurrentMoveIdx((prev) => Math.min(report.analyzedMoves.length - 1, prev + 1));
-        setPreviewVariation(false);
+        selectMove(Math.min(report.analyzedMoves.length - 1, currentMoveIdx + 1));
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [report]);
-
-  const selectMove = (idx: number) => {
-    setIsPlaying(false);
-    setPreviewVariation(false);
-    setCurrentMoveIdx(idx);
-  };
+  }, [report, currentMoveIdx]);
 
   const getBadgeStyle = (cls: MoveClassification) => {
     switch (cls) {
@@ -322,7 +339,7 @@ export const GameReviewStudio: React.FC = () => {
       {/* 3-Panel Synchronized Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_360px] gap-4 sm:gap-6 items-start">
         {/* PANEL 1 (LEFT): Game Timeline & Move Classification Register */}
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-3 shadow-sm flex flex-col h-[670px] max-h-[670px] overflow-hidden">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-3 shadow-sm flex flex-col h-[min(650px,calc(100vh-160px))] overflow-hidden">
           {/* Timeline Filter Tabs */}
           <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold mb-2 shrink-0 border border-stone-200 dark:border-stone-700 shadow-xs">
             <button
@@ -366,6 +383,9 @@ export const GameReviewStudio: React.FC = () => {
               return (
                 <div
                   key={idx}
+                  ref={(el) => {
+                    moveItemRefs.current[idx] = el;
+                  }}
                   onClick={() => selectMove(idx)}
                   className={`p-2 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                     isSelected
@@ -413,7 +433,7 @@ export const GameReviewStudio: React.FC = () => {
         <div className="flex flex-col items-center justify-center gap-2.5">
           <div className="flex items-center justify-center gap-3 shrink-0">
             {/* Evaluation Bar */}
-            <div className="h-[min(540px,calc(100vh-250px))] flex items-center">
+            <div className="h-[min(480px,calc(100vh-290px))] flex items-center">
               <EvaluationBar
                 scoreCentipawns={activeMove ? activeMove.evalAfterCp : 15}
                 isCheckmate={currentSnapshot.isCheckmate}
@@ -422,7 +442,7 @@ export const GameReviewStudio: React.FC = () => {
             </div>
 
             {/* Chessboard */}
-            <div className="w-[min(540px,calc(100vh-250px))] h-[min(540px,calc(100vh-250px))] aspect-square flex items-center justify-center">
+            <div className="w-[min(480px,calc(100vh-290px))] h-[min(480px,calc(100vh-290px))] aspect-square flex items-center justify-center">
               <Chessboard
                 snapshot={currentSnapshot}
                 legalMoves={[]}
@@ -549,7 +569,7 @@ export const GameReviewStudio: React.FC = () => {
         </div>
 
         {/* PANEL 3 (RIGHT): Live Analysis & Tactical Insights */}
-        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-sm flex flex-col h-[670px] max-h-[670px] overflow-hidden gap-3">
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-4 shadow-sm flex flex-col h-[min(650px,calc(100vh-160px))] overflow-hidden gap-3">
           {/* Tabs */}
           <div className="flex items-center bg-white dark:bg-stone-800 p-1 rounded-xl text-xs font-bold shrink-0 border border-stone-200 dark:border-stone-700 shadow-xs">
             <button
@@ -585,7 +605,7 @@ export const GameReviewStudio: React.FC = () => {
           </div>
 
           {activeTab === 'insight' && activeMove ? (
-            <div className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 scrollbar-thin">
+            <div ref={rightScrollRef} className="flex-1 flex flex-col gap-2.5 overflow-y-auto pr-1 scrollbar-thin">
               {/* Classification Headline Card */}
               <div
                 className={`p-3.5 rounded-2xl border flex items-center justify-between shadow-sm ${getBadgeStyle(
@@ -664,6 +684,31 @@ export const GameReviewStudio: React.FC = () => {
                     </button>
                   </div>
                 )}
+            </div>
+          ) : activeTab === 'insight' ? (
+            <div
+              ref={rightScrollRef}
+              className="flex-1 flex flex-col gap-3 overflow-y-auto pr-1 scrollbar-thin items-center justify-center text-center p-6 bg-stone-50/50 dark:bg-stone-800/30 rounded-2xl border border-stone-100 dark:border-stone-800"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-[#739552]/10 border border-[#739552]/30 flex items-center justify-center text-[#739552] text-xl font-bold">
+                ♟
+              </div>
+              <div>
+                <h3 className="font-extrabold text-sm text-stone-900 dark:text-stone-100">
+                  Starting Position
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1 max-w-[260px] leading-relaxed">
+                  {report.openingInfo ? `${report.openingInfo.eco}: ${report.openingInfo.name}` : 'Standard Game Opening'}.
+                  Click any move in the timeline or use the arrow keys to inspect full tactical evaluations and engine suggestions.
+                </p>
+              </div>
+              <button
+                onClick={() => selectMove(0)}
+                className="px-4 py-2 rounded-xl bg-[#739552] text-white hover:bg-[#648346] font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all mt-1"
+              >
+                <span>Inspect Move 1</span>
+                <ChevronRight size={14} />
+              </button>
             </div>
           ) : activeTab === 'mistakes' ? (
             <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-1 scrollbar-thin">

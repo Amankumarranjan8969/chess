@@ -8,7 +8,8 @@ export type MainSection =
   | 'learn'
   | 'watch'
   | 'more'
-  | 'connect';
+  | 'connect'
+  | 'admin';
 
 export interface UserRating {
   rating: number;
@@ -26,6 +27,7 @@ export interface UserProfile {
   email: string;
   avatar: string;
   title?: string;
+  role?: 'user' | 'superadmin';
   bio: string;
   country: string;
   joinedDate: string;
@@ -44,6 +46,15 @@ export interface UserProfile {
       streak: number;
     };
   };
+}
+
+export interface UserAccount {
+  id: string;
+  username: string;
+  email: string;
+  passwordHash: string;
+  role: 'user' | 'superadmin';
+  profile: UserProfile;
 }
 
 export interface StoredMove {

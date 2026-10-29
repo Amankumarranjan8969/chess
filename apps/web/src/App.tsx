@@ -20,6 +20,8 @@ import { PuzzlesStudio } from './components/PuzzlesStudio.js';
 import { LearnStudio } from './components/LearnStudio.js';
 import { WatchStudio } from './components/WatchStudio.js';
 import { MoreStudio } from './components/MoreStudio.js';
+import { AdminStudio } from './components/AdminStudio.js';
+import { AuthModal } from './components/AuthModal.js';
 import { Chessboard, BoardTheme } from './components/Chessboard.js';
 import { ClockDisplay } from './components/ClockDisplay.js';
 import { MoveHistory } from './components/MoveHistory.js';
@@ -49,6 +51,7 @@ import {
   Flame,
   Check,
   Eye,
+  Radio,
 } from 'lucide-react';
 
 type GameMode = 'computer' | 'local' | 'online';
@@ -61,7 +64,11 @@ const MainAppContent: React.FC = () => {
     recordFinishedGame,
     preferences,
     user,
+    isSuperAdmin,
+    adminBroadcast,
   } = usePlatform();
+
+  const [lastRatingDelta, setLastRatingDelta] = useState<number | undefined>(undefined);
 
   // Play Studio State
   const [mode, setMode] = useState<GameMode>('computer');
@@ -141,9 +148,9 @@ const MainAppContent: React.FC = () => {
     }
   }, [isOnline, socketHook.playerColor]);
 
-  // Real-time clock tick and automatic timeout flag detector for local play (runs ONLY when game is actively started)
+  // Real-time clock tick and automatic timeout flag detector for local play (runs ONLY when game is initiated AND at least 1 move has been played)
   useEffect(() => {
-    if (isOnline || !isGameStarted || localSnapshot.status !== 'active') return;
+    if (isOnline || !isGameStarted || localSnapshot.status !== 'active' || localSnapshot.moveHistory.length === 0) return;
 
     const interval = setInterval(() => {
       const snap = localGameRef.current.getSnapshot();
@@ -160,7 +167,7 @@ const MainAppContent: React.FC = () => {
     }, 100);
 
     return () => clearInterval(interval);
-  }, [isOnline, isGameStarted, localSnapshot.status]);
+  }, [isOnline, isGameStarted, localSnapshot.status, localSnapshot.moveHistory.length]);
 
   // When game finishes online, record and trigger game over modal
   useEffect(() => {
@@ -191,7 +198,24 @@ const MainAppContent: React.FC = () => {
       const isBlackWin = snap.result === '0-1';
       const userWon = (isWhiteWin && userColor === 'w') || (isBlackWin && userColor === 'b');
       const isDraw = snap.result === '1/2-1/2';
-      const delta = userWon ? 12 : isDraw ? 1 : -10;
+
+      // Dynamic Elo calculation based on result and AI difficulty / opponent
+      let delta = 0;
+      if (userWon) {
+        if (difficulty === 'grandmaster') delta = 18;
+        else if (difficulty === 'hard') delta = 15;
+        else if (difficulty === 'medium') delta = 12;
+        else delta = 10;
+      } else if (isDraw) {
+        delta = difficulty === 'grandmaster' || difficulty === 'hard' ? 2 : -2;
+      } else {
+        if (difficulty === 'grandmaster') delta = -8;
+        else if (difficulty === 'hard') delta = -10;
+        else if (difficulty === 'medium') delta = -12;
+        else delta = -15;
+      }
+
+      setLastRatingDelta(delta);
 
       const stored: StoredGame = {
         id: gameId,
@@ -313,7 +337,7 @@ const MainAppContent: React.FC = () => {
       setUserColor(chosenColor);
       setDifficulty(chosenDifficulty);
       setOrientation(chosenColor);
-      setIsGameStarted(true);
+      setIsGameStarted(false);
 
       const newGame = new ChessGame(undefined, { timeControl });
       localGameRef.current = newGame;
@@ -498,6 +522,16 @@ const MainAppContent: React.FC = () => {
       {/* Persistent Navigation Across All Sections */}
       <Navigation />
 
+      {/* Global Super Admin Announcement Broadcast (if set) */}
+      {adminBroadcast && (
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-bold px-4 py-2 text-xs text-center flex items-center justify-center gap-2 shadow-sm">
+          <span className="bg-stone-950 text-amber-400 text-[10px] uppercase tracking-wider font-extrabold px-1.5 py-0.5 rounded">
+            ⚡ Admin Announcement
+          </span>
+          <span>{adminBroadcast}</span>
+        </div>
+      )}
+
       {/* Main Content Area Routed by Active Section */}
       <main className="flex-1 flex flex-col pb-16 md:pb-6">
         {activeSection === 'home' && (
@@ -533,6 +567,8 @@ const MainAppContent: React.FC = () => {
         {activeSection === 'watch' && <WatchStudio />}
 
         {activeSection === 'more' && <MoreStudio />}
+
+        {activeSection === 'admin' && <AdminStudio />}
 
         {activeSection === 'play' && (
           <div className="flex-1 w-full max-w-[1750px] mx-auto p-2 sm:p-4 flex flex-col justify-center">
@@ -764,21 +800,23 @@ const MainAppContent: React.FC = () => {
                 <div className="flex flex-col gap-2 shrink-0">
                   {/* Turn Status Alert */}
                   {!isGameStarted && !isOnline ? (
-                    <div className="py-2 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between text-xs font-bold shadow-xs">
+                    <div className="py-2.5 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 flex items-center justify-between text-xs font-bold shadow-xs">
                       <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                         <span className="text-stone-700 dark:text-stone-300">
-                          Game Ready • Make a move or start match
+                          {mode === 'computer' && userColor === 'b'
+                            ? 'Game Ready • Click to let Computer move first'
+                            : 'Game Ready • Make your first move or start'}
                         </span>
                       </div>
                       <button
                         onClick={() => {
-                          startNewLocalGame(userColor, difficulty, { initialMs: 600000, incrementMs: 0 });
+                          setIsGameStarted(true);
                         }}
-                        className="px-3 py-1 bg-[#739552] hover:bg-[#648346] text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs transition-all cursor-pointer"
+                        className="px-3.5 py-1.5 bg-[#739552] hover:bg-[#648346] text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
                       >
                         <Play size={12} fill="white" />
-                        <span>Start Game</span>
+                        <span>{mode === 'computer' && userColor === 'b' ? 'Initiate Match' : 'Start Match'}</span>
                       </button>
                     </div>
                   ) : liveSnapshot.status === 'active' ? (
@@ -925,6 +963,8 @@ const MainAppContent: React.FC = () => {
         result={liveSnapshot.result}
         endReason={liveSnapshot.endReason}
         userColor={userColor}
+        ratingChange={lastRatingDelta}
+        newRating={user.ratings.rapid.rating}
         onPlayAgain={() => {
           setShowGameOverModal(false);
           if (isOnline) {
@@ -943,6 +983,9 @@ const MainAppContent: React.FC = () => {
           }
         }}
       />
+
+      {/* Authentication & Profile Modal */}
+      <AuthModal />
     </div>
   );
 };

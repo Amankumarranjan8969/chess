@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import {
   ChessGame,
   Color,
@@ -26,9 +27,24 @@ export interface SerializedRoomState {
   gameState: GameSnapshot;
 }
 
+/** Player info that is safe to broadcast: no socket IDs / seat keys. */
+export interface PublicPlayer {
+  name: string;
+  color: Color;
+  connected: boolean;
+}
+
+export interface PublicRoomState extends Omit<SerializedRoomState, 'whitePlayer' | 'blackPlayer'> {
+  whitePlayer: PublicPlayer | null;
+  blackPlayer: PublicPlayer | null;
+}
+
+const MAX_SPECTATORS = 50;
+
 export class GameRoom {
   public readonly roomId: string;
   public readonly timeControl: TimeControl;
+  public readonly createdAt: number = Date.now();
   private game: ChessGame;
   private whitePlayer: RoomPlayer | null = null;
   private blackPlayer: RoomPlayer | null = null;
@@ -44,6 +60,9 @@ export class GameRoom {
     this.roomId = roomId;
     this.timeControl = timeControl;
     this.game = new ChessGame(undefined, { timeControl });
+    // The core starts White's clock on construction; hold it until both players have joined so
+    // time spent waiting for an opponent is not charged to White.
+    this.game.getClock()?.pause();
   }
 
   public setGameOverCallback(cb: (result: GameResult, reason: EndReason) => void): void {
@@ -67,7 +86,12 @@ export class GameRoom {
 
     // Assign open slots
     if (!this.whitePlayer && !this.blackPlayer) {
-      const assigned = preferredColor ?? (Math.random() > 0.5 ? 'w' : 'b');
+      const assigned: Color =
+        preferredColor === 'w' || preferredColor === 'b'
+          ? preferredColor
+          : randomInt(2) === 0
+          ? 'w'
+          : 'b';
       const player: RoomPlayer = { id, name, color: assigned, connected: true };
       if (assigned === 'w') {
         this.whitePlayer = player;
@@ -90,6 +114,9 @@ export class GameRoom {
     }
 
     // Room is full for players, join as spectator
+    if (!this.spectators.has(id) && this.spectators.size >= MAX_SPECTATORS) {
+      throw new Error('This room is full');
+    }
     this.spectators.set(id, { id, name });
     return { role: 'spectator' };
   }
@@ -128,11 +155,17 @@ export class GameRoom {
     );
   }
 
+  /**
+   * `_clientTimestamp` is accepted for API compatibility but deliberately ignored: all clock
+   * accounting uses the server's own time, otherwise a client could forge timestamps to burn
+   * the opponent's clock or stop its own.
+   */
   public makeMove(
     id: string,
     moveInput: MoveInput | string,
-    clientTimestamp: number = Date.now()
+    _clientTimestamp?: number
   ): { success: boolean; move?: DetailedMove; error?: string } {
+    const serverNow = Date.now();
     // 1. Authorize player
     const playerColor = this.getPlayerColor(id);
     if (!playerColor) {
@@ -154,7 +187,7 @@ export class GameRoom {
     this.drawOfferedBy = null;
 
     // 4. Execute authoritative move in core
-    const res = this.game.makeMove(moveInput, clientTimestamp);
+    const res = this.game.makeMove(moveInput, serverNow);
     if (!res.success) {
       return res;
     }
@@ -261,6 +294,18 @@ export class GameRoom {
       timeControl: this.timeControl,
       drawOfferedBy: this.drawOfferedBy,
       gameState: this.game.getSnapshot(now),
+    };
+  }
+
+  /** Same as getSerializedState but without socket IDs / seat keys. Use for anything sent to clients. */
+  public getPublicState(now: number = Date.now()): PublicRoomState {
+    const strip = (p: RoomPlayer | null): PublicPlayer | null =>
+      p ? { name: p.name, color: p.color, connected: p.connected } : null;
+    const state = this.getSerializedState(now);
+    return {
+      ...state,
+      whitePlayer: strip(state.whitePlayer),
+      blackPlayer: strip(state.blackPlayer),
     };
   }
 
